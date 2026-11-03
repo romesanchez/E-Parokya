@@ -1,0 +1,2 @@
+# Block direct web access to app internals if the whole folder is served by Apache.
+RedirectMatch 404 ^/(?:.*/)?(includes|database|data)/

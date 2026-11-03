@@ -1,0 +1,69 @@
+/* ---- Split-screen login (left form, right page links + image) ---- */
+.auth-body { margin: 0; background: #fff; }
+.auth { display: flex; min-height: 100vh; }
+
+/* Left column */
+.auth-left { flex: 0 0 31.5rem; max-width: 100%; background: #fff; padding: 3.5rem 3.125rem 3rem; }
+.auth-brand { display: inline-flex; margin-bottom: 3.25rem; }
+.auth-title { font: 600 2.375rem/1.1 var(--font-sans); color: var(--foreground); margin: 0 0 2rem; }
+
+.auth-field { position: relative; margin-bottom: 1.25rem; }
+.auth-field input { height: 4.375rem; padding: 0 1.25rem; font-size: 1.125rem; background: #f1f2f4; border: 1px solid transparent; border-radius: 4px; box-shadow: none; }
+.auth-field input::placeholder { color: #6b7280; }
+.auth-field input:focus { background: #fff; border-color: var(--primary); box-shadow: none; }
+.auth-field input[type="password"], .auth-field input.has-eye { padding-right: 4rem; }
+.auth-eye { position: absolute; right: 1.25rem; top: 50%; transform: translateY(-50%); background: none; border: 0; padding: .25rem; cursor: pointer; color: #1f2937; display: flex; }
+.auth-eye.on .slash { display: none; }
+
+.auth-error { color: var(--destructive); font-size: .9375rem; margin: .25rem 0 0; }
+
+.auth-submit { display: block; width: 100%; height: 3.75rem; margin-top: 2.5rem; border: 0; border-radius: 4px; background: var(--primary); color: #fff; font: 500 1.125rem var(--font-sans); cursor: pointer; transition: background .15s; }
+.auth-submit:disabled { background: color-mix(in oklab, var(--primary) 28%, white); cursor: not-allowed; }
+
+.auth-forgot { text-align: center; margin: 1.5rem 0; font-size: 1.0625rem; color: #4b5563; }
+.auth-forgot a { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
+
+.auth-or { display: flex; align-items: center; gap: 1rem; color: #9ca3af; font-size: 1.0625rem; margin: 1.75rem 0; }
+.auth-or::before, .auth-or::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+.auth-register { display: flex; align-items: center; justify-content: center; height: 3.75rem; border: 1px solid var(--foreground); border-radius: 4px; font-size: 1.125rem; font-weight: 500; color: var(--foreground); transition: background .15s; }
+.auth-register:hover { background: var(--secondary); }
+
+.auth-rows { margin-top: 2.5rem; }
+.auth-row { display: flex; align-items: center; gap: 1rem; padding: 1.1rem 0; border-bottom: 1px solid var(--border); color: var(--foreground); }
+.auth-row:first-child { border-top: 1px solid var(--border); }
+.auth-row:hover { background: color-mix(in oklab, var(--secondary) 50%, transparent); }
+.auth-row-text { flex: 1; }
+.auth-row-text strong { display: block; font-size: 1.25rem; font-weight: 500; }
+.auth-row-text small { display: block; font-size: .8125rem; color: var(--muted-foreground); }
+
+.auth-note { font-size: .875rem; color: var(--muted-foreground); margin-top: 1.75rem; }
+.auth-note a { color: var(--primary); text-decoration: underline; }
+
+/* Right column */
+.auth-right { flex: 1; min-width: 0; display: flex; flex-direction: column; background: color-mix(in oklab, var(--secondary) 55%, white); }
+.auth-nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 1rem 1.875rem; padding: 3.1rem 3.75rem 0; font-size: 1.125rem; font-weight: 500; color: var(--foreground); }
+.auth-nav a:hover { color: var(--primary); text-decoration: underline; text-underline-offset: 4px; }
+.auth-art { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem 3rem 4rem; }
+.auth-art img { width: min(100%, 40rem); aspect-ratio: 4 / 3; object-fit: cover; border-radius: 1.5rem; box-shadow: 0 20px 50px rgb(0 0 0 / .12); }
+
+/* Phones / small screens */
+@media (max-width: 56rem) {
+  .auth { flex-direction: column; }
+  .auth-left { flex-basis: auto; padding: 2rem 1.5rem; }
+  .auth-right { order: 2; }
+  .auth-art { display: none; }
+  .auth-nav { justify-content: center; padding: 1.5rem; font-size: 1rem; }
+}
+
+/* ---- Admin login: centered white card over a faded full-window photo ---- */
+.admin-login { min-height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; background: var(--background); position: relative; }
+.admin-bg { position: fixed; inset: 0; background-size: cover; background-position: center; background-repeat: no-repeat; opacity: .3; z-index: 0; pointer-events: none; }
+.admin-card { position: relative; z-index: 1; width: 100%; max-width: 29rem; background: #fff; border: 1px solid var(--border); border-radius: .75rem; padding: 2.5rem 2.25rem; box-shadow: 0 20px 60px rgb(0 0 0 / .18); }
+.admin-card .auth-brand { display: flex; justify-content: center; margin-bottom: 1.75rem; }
+.admin-card .auth-title { text-align: center; font-size: 2rem; margin-bottom: 1.5rem; }
+.admin-card .auth-field input { height: 3.75rem; font-size: 1rem; }
+.admin-card .auth-submit { height: 3.5rem; margin-top: 1.75rem; }
+.admin-card .auth-register { height: 3.5rem; }
+.admin-card .auth-note { text-align: center; }
+@media (max-width: 30rem) { .admin-card { padding: 2rem 1.25rem; } }
