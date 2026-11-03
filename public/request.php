@@ -10,6 +10,11 @@ $error = null;
 $values['full_name'] = $me['name'];
 $values['email'] = $me['email'];
 
+// Preselect the service when coming from the home page (?service=wedding)
+if (isset($_GET['service']) && is_string($_GET['service']) && isset(SERVICE_LABELS[$_GET['service']])) {
+    $values['service_type'] = $_GET['service'];
+}
+
 // Post/Redirect/Get: show the thank-you screen after a successful submit.
 if (isset($_GET['done']) && isset($_SESSION['submitted'])) {
     $done = $_SESSION['submitted'];

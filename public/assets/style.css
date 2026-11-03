@@ -223,3 +223,59 @@ html.side-open .user-side { transform: none; }
 .side-backdrop { display: none; }
 @media (min-width: 900px) { html.side-open .site { margin-left: 16rem; } }
 @media (max-width: 899px) { html.side-open .side-backdrop { display: block; position: fixed; inset: 0; z-index: 55; background: rgb(20 12 8 / .45); } }
+
+
+/* ---- services showcase (home page) ---- */
+.showcase { margin-top: 2.5rem; }
+.stage { position: relative; display: grid; overflow: hidden; border-radius: .75rem; color: var(--primary-foreground); background: radial-gradient(circle at 85% 20%, color-mix(in oklab, var(--accent) 28%, transparent), transparent 55%), linear-gradient(135deg, var(--primary), color-mix(in oklab, var(--primary) 65%, black)); box-shadow: 0 10px 30px -10px rgb(60 20 15 / .5); }
+.slide { grid-area: 1 / 1; display: grid; gap: 1.5rem; align-items: center; padding: 2rem 1.5rem 2.75rem; opacity: 0; visibility: hidden; transform: translateX(2.5rem); transition: opacity .5s ease, transform .5s ease, visibility 0s linear .5s; }
+.slide.active { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+
+.slide-art { position: relative; order: -1; display: flex; align-items: center; justify-content: center; height: 9rem; }
+.slide-icon { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; width: 6.5rem; height: 6.5rem; border-radius: 50%; background: color-mix(in oklab, var(--primary-foreground) 12%, transparent); font-size: 3.25rem; }
+.slide-art::before, .slide-art::after { content: ""; position: absolute; width: 6.5rem; height: 6.5rem; border-radius: 50%; border: 1px solid var(--accent); opacity: 0; }
+.slide.active .slide-icon { animation: svc-bob 3.2s ease-in-out infinite; }
+.slide.active .slide-art::before { animation: svc-ring 3s ease-out infinite; }
+.slide.active .slide-art::after { animation: svc-ring 3s ease-out 1.5s infinite; }
+
+.slide-count { font-size: .75rem; letter-spacing: .3em; text-transform: uppercase; color: var(--accent); }
+.slide-copy h3 { margin-top: .5rem; font: 600 1.75rem var(--font-display); }
+.slide-desc { margin-top: .75rem; max-width: 32rem; font-size: .9375rem; opacity: .9; }
+.slide-copy .btn { margin-top: 1.25rem; }
+.slide.active .slide-copy > * { animation: svc-rise .6s ease both; }
+.slide.active .slide-copy > :nth-child(2) { animation-delay: .08s; }
+.slide.active .slide-copy > :nth-child(3) { animation-delay: .16s; }
+.slide.active .slide-copy > :nth-child(4) { animation-delay: .24s; }
+
+.progress { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: color-mix(in oklab, var(--primary-foreground) 15%, transparent); }
+.progress span { display: block; width: 0; height: 100%; background: var(--accent); }
+.progress span.run { animation: svc-fill 5.5s linear forwards; }
+@media (hover: hover) { .showcase:hover .progress span.run { animation-play-state: paused; } }
+.showcase:has(:focus-visible) .progress span.run { animation-play-state: paused; }
+
+.svc-tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: .5rem; margin-top: 1rem; }
+.svc-tab { display: flex; align-items: center; gap: .5rem; padding: .625rem .75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); color: var(--muted-foreground); font-size: .8125rem; font-weight: 500; text-align: left; cursor: pointer; transition: border-color .2s, color .2s, background .2s, transform .2s; }
+.svc-tab:hover { color: var(--foreground); transform: translateY(-2px); }
+.svc-tab.active { border-color: var(--primary); background: color-mix(in oklab, var(--accent) 18%, var(--card)); color: var(--foreground); }
+.svc-tab-icon { font-size: 1.125rem; }
+
+@keyframes svc-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes svc-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes svc-ring { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(2.1); opacity: 0; } }
+@keyframes svc-fill { from { width: 0; } to { width: 100%; } }
+
+@media (min-width: 640px) { .svc-tabs { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 720px) {
+  .slide { grid-template-columns: 1.2fr 1fr; gap: 2rem; padding: 3rem 3.5rem 3.5rem; }
+  .slide-art { order: 0; height: 14rem; }
+  .slide-copy { order: -1; }
+  .slide-icon, .slide-art::before, .slide-art::after { width: 9.5rem; height: 9.5rem; }
+  .slide-icon { font-size: 4.75rem; }
+  .slide-copy h3 { font-size: 2.5rem; }
+}
+@media (min-width: 1024px) { .svc-tabs { grid-template-columns: repeat(6, 1fr); } }
+@media (prefers-reduced-motion: reduce) {
+  .slide, .svc-tab { transition: none; transform: none; }
+  .slide.active .slide-icon, .slide.active .slide-art::before, .slide.active .slide-art::after, .slide.active .slide-copy > *, .progress span.run { animation: none; }
+  .progress { display: none; }
+}
