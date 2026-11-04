@@ -32,6 +32,8 @@ const LOG_LABELS = [
     'client_enabled'        => 'Client account enabled',
     'client_deleted'        => 'Client account deleted',
     'document_issued'       => 'Document issued',
+    'admin_password_changed' => 'Admin password changed',
+    'admin_password_failed'  => 'Failed password change',
 ];
 
 const METHOD_LABELS = [

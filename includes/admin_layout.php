@@ -77,6 +77,7 @@ function admin_start(string $title, string $active = ''): void
       <?= $item('documents', 'documents.php', 'Documents') ?>
       <p class="side-label">System</p>
       <?= $item('logs', 'logs.php', 'Activity Logs') ?>
+      <?= $item('password', 'password.php', 'Change Password') ?>
     </nav>
     <div class="side-foot">
       <p class="small"><strong><?= e($me['name'] ?? '') ?></strong><br><span class="muted"><?= e($me['email'] ?? '') ?></span></p>
