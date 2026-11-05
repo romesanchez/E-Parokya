@@ -396,8 +396,6 @@ admin_start('Documents & Certificates', 'documents');
   .doc-actions .btn { padding: .4rem .9rem; }
   .doc-actions form { display: flex; gap: .4rem; }
   .doc-actions input { width: 9rem; padding: .35rem .6rem; }
-  .badge-issued { background: color-mix(in oklab, var(--primary) 10%, transparent); color: var(--primary); border-color: color-mix(in oklab, var(--primary) 30%, transparent); }
-  .badge-voided { background: color-mix(in oklab, var(--destructive) 10%, transparent); color: var(--destructive); border-color: color-mix(in oklab, var(--destructive) 30%, transparent); }
   .search { margin-top: 2rem; display: flex; gap: .5rem; }
   .ok { background: color-mix(in oklab, var(--primary) 10%, transparent); color: var(--primary); border-radius: var(--radius); padding: .5rem .75rem; font-size: .875rem; margin-top: 1rem; }
   @media (min-width: 640px) { .doc-form .row { grid-template-columns: 1fr 1fr; } }
@@ -446,13 +444,13 @@ admin_start('Documents & Certificates', 'documents');
         <?php endif; ?>
         <div class="field"><label for="f_by">Issued by (staff name) *</label><input id="f_by" name="issued_by" maxlength="120" required value="<?= e($old['issued_by'] ?? $me['name']) ?>"></div>
       </div>
-      <div><button class="btn btn-primary">Generate <?= e($def['label']) ?></button></div>
+      <div><button class="btn btn-success">Generate <?= e($def['label']) ?></button></div>
     </form>
   <?php elseif ($errors): foreach ($errors as $err): ?><p class="alert-error"><?= e($err) ?></p><?php endforeach; endif; ?>
 
   <form method="get" action="documents.php" class="search">
     <input name="q" value="<?= e($q) ?>" placeholder="Search by name or document number" aria-label="Search documents">
-    <button class="btn btn-outline">Search</button>
+    <button class="btn btn-info">Search</button>
   </form>
 
   <h2 style="margin-top:2rem">Issued documents</h2>
@@ -470,7 +468,7 @@ admin_start('Documents & Certificates', 'documents');
             <form method="post" action="documents.php" onsubmit="return confirm('Void this document? This cannot be undone.')">
               <?= csrf_field() ?><input type="hidden" name="action" value="void"><input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
               <input name="reason" placeholder="Reason to void" required minlength="3" aria-label="Reason to void">
-              <button class="btn btn-outline">Void</button>
+              <button class="btn btn-danger">Void</button>
             </form>
           <?php endif; ?>
         </div>
@@ -484,7 +482,7 @@ admin_start('Documents & Certificates', 'documents');
     <form method="get" action="documents.php#verify" id="verify" class="search" style="margin-top:0">
       <input name="verify_no" placeholder="e.g. BAP-2026-0001" value="<?= e($_GET['verify_no'] ?? '') ?>" required aria-label="Document number">
       <input name="verify_code" placeholder="Code" value="<?= e($_GET['verify_code'] ?? '') ?>" required aria-label="Verification code" style="max-width:10rem">
-      <button class="btn btn-primary">Verify</button>
+      <button class="btn btn-info">Verify</button>
     </form>
     <?php if ($verifyMsg): ?><p class="<?= $verifyMsg[0] ? 'ok' : 'alert-error' ?>" style="margin-top:0"><?= e($verifyMsg[1]) ?></p><?php endif; ?>
   </div>

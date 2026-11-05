@@ -21,7 +21,7 @@ admin_start('Activity Logs', 'logs');
       <select id="role" name="role"><option value="">Everyone</option>
         <?php foreach (['admin' => 'Admins', 'user' => 'Parishioners', 'guest' => 'Not logged in'] as $k => $l): ?><option value="<?= e($k) ?>" <?= $f['role'] === $k ? 'selected' : '' ?>><?= e($l) ?></option><?php endforeach; ?>
       </select></div>
-    <div><button class="btn btn-primary" type="submit">Filter</button></div>
+    <div><button class="btn btn-info" type="submit">Filter</button></div>
   </form>
 
   <div class="table-wrap">
@@ -34,7 +34,7 @@ admin_start('Activity Logs', 'logs');
           <td style="white-space:nowrap"><?= e(date('M j, Y g:i A', strtotime($l['created_at']))) ?></td>
           <td><?= e($l['actor']) ?></td>
           <td><?= e($l['role']) ?></td>
-          <td><span class="badge <?= $failed ? 'badge-declined' : 'badge-completed' ?>"><?= e(LOG_LABELS[$l['action']] ?? $l['action']) ?></span></td>
+          <td><span class="badge <?= $failed ? 'badge-declined' : 'badge-approved' ?>"><?= e(LOG_LABELS[$l['action']] ?? $l['action']) ?></span></td>
           <td><?= e($l['details']) ?></td>
           <td class="muted"><?= e($l['ip']) ?></td>
         </tr>

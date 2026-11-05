@@ -72,8 +72,8 @@ admin_start('Transactions', 'transactions');
       <p class="muted small">All active service requests. Open a row to view, edit or archive it. <?= (int)$counts['completed'] ?> completed request(s) can be archived.</p>
     </div>
     <div class="toolbar">
-      <a class="btn btn-primary" href="<?= e(url('admin/assisted.php')) ?>">+ New request</a>
-      <a class="btn btn-outline" href="<?= e($self . '?' . http_build_query($qs + ['export' => 1])) ?>">Export CSV</a>
+      <a class="btn btn-success" href="<?= e(url('admin/assisted.php')) ?>">+ New request</a>
+      <a class="btn btn-outline-info" href="<?= e($self . '?' . http_build_query($qs + ['export' => 1])) ?>">Export CSV</a>
     </div>
   </div>
 
@@ -93,15 +93,15 @@ admin_start('Transactions', 'transactions');
       </select></div>
     <div><label for="from">Received from</label><input id="from" name="from" type="date" value="<?= e($f['from']) ?>"></div>
     <div><label for="to">Received to</label><input id="to" name="to" type="date" value="<?= e($f['to']) ?>"></div>
-    <div><button class="btn btn-primary" type="submit">Filter</button> <a class="btn btn-outline" href="<?= e($self) ?>">Reset</a></div>
+    <div><button class="btn btn-info" type="submit">Filter</button> <a class="btn btn-outline" href="<?= e($self) ?>">Reset</a></div>
   </form>
 
   <form method="post" action="<?= e($selfQ) ?>">
     <?= csrf_field() ?>
     <div class="bulkbar">
-      <button class="btn btn-outline btn-sm" type="submit" name="action" value="archive_selected" onclick="return confirm('Archive the selected requests? Only completed or declined ones will be archived.')">Archive selected</button>
+      <button class="btn btn-outline-neutral btn-sm" type="submit" name="action" value="archive_selected" onclick="return confirm('Archive the selected requests? Only completed or declined ones will be archived.')">Archive selected</button>
       <?php if ($counts['completed']): ?>
-        <button class="btn btn-outline btn-sm" type="submit" name="action" value="archive_completed" onclick="return confirm('Archive ALL completed requests (<?= (int)$counts['completed'] ?>)?')">Archive all completed</button>
+        <button class="btn btn-outline-neutral btn-sm" type="submit" name="action" value="archive_completed" onclick="return confirm('Archive ALL completed requests (<?= (int)$counts['completed'] ?>)?')">Archive all completed</button>
       <?php endif; ?>
       <span class="muted small"><?= (int)$total ?> result(s)</span>
     </div>
@@ -120,8 +120,8 @@ admin_start('Transactions', 'transactions');
             <td><?= e(fmt_date($r['created_at'])) ?></td>
             <td><strong><?= e($r['full_name']) ?></strong><span class="sub"><?= e($r['email'] ?: '—') ?><?= $r['phone'] ? ' · ' . e($r['phone']) : '' ?></span></td>
             <td><?= e(SERVICE_LABELS[$r['service_type']] ?? $r['service_type']) ?></td>
-            <td><span class="badge <?= $r['method'] === 'assisted' ? 'badge-approved' : 'badge-completed' ?>"><?= e(METHOD_LABELS[$r['method']] ?? $r['method']) ?></span>
-              <?php if ($r['method'] === 'assisted' && $r['staff_name']): ?><span class="sub">by <?= e($r['staff_name']) ?></span><?php endif; ?></td>
+            <td><span class="method-pill m-<?= e($r['method']) ?>"><i class="dot"></i><?= e(METHOD_LABELS[$r['method']] ?? $r['method']) ?></span>
+                <?php if ($r['method'] === 'assisted' && $r['staff_name']): ?><span class="sub">by <?= e($r['staff_name']) ?></span><?php endif; ?></td>
             <td><?= status_badge($r['status']) ?></td>
             <td><?php if ($r['event_date']): ?><?= e(fmt_date($r['event_date'])) ?><span class="sub"><?= e(fmt_time($r['event_time'])) ?> · <?= e($r['venue']) ?></span>
                 <?php elseif ($r['status'] === 'approved'): ?><a class="link" href="<?= e(url('admin/schedule.php?request=' . (int)$r['id'])) ?>">Set</a>

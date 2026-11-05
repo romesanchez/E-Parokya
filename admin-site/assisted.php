@@ -89,7 +89,7 @@ admin_start('Assisted Request', 'assisted');
       <textarea id="notes" name="notes" rows="3" maxlength="1000"><?= e($v['notes']) ?></textarea>
     </div>
     <?php if ($error): ?><p class="alert-error full" role="alert"><?= e($error) ?></p><?php endif; ?>
-    <div class="full"><button type="submit" class="btn btn-primary">Record request</button></div>
+    <div class="full"><button type="submit" class="btn btn-success">Record request</button></div>
   </form>
 </div>
 <?php admin_end();

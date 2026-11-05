@@ -74,7 +74,7 @@ admin_start('Clients', 'clients');
       <div><label for="full_name">Full name</label><input id="full_name" name="full_name" required maxlength="120" value="<?= e($_POST['full_name'] ?? $edit['full_name']) ?>"></div>
       <div><label for="email">Email</label><input id="email" name="email" type="email" required maxlength="255" value="<?= e($_POST['email'] ?? $edit['email']) ?>"></div>
       <div class="full"><label for="new_password">Reset password <span class="muted normal">(leave blank to keep the current one)</span></label><input id="new_password" name="new_password" type="text" autocomplete="off" maxlength="72" placeholder="At least 8 characters"></div>
-      <div class="full toolbar"><button class="btn btn-primary" type="submit">Save</button><a class="btn btn-outline" href="<?= e($selfQ) ?>">Cancel</a></div>
+      <div class="full toolbar"><button class="btn btn-success" type="submit">Save</button><a class="btn btn-outline" href="<?= e($selfQ) ?>">Cancel</a></div>
     </form>
     <?php $hist = client_logins((int)$edit['id']); if ($hist): ?>
       <section class="card panel" style="margin-bottom:1rem"><h2>Recent activity of <?= e($edit['full_name']) ?></h2>
@@ -85,7 +85,7 @@ admin_start('Clients', 'clients');
 
   <form method="get" action="<?= e($self) ?>" class="card filters">
     <div><label for="q">Name or email</label><input id="q" name="q" value="<?= e($q) ?>"></div>
-    <div><button class="btn btn-primary" type="submit">Search</button> <a class="btn btn-outline" href="<?= e($self) ?>">Reset</a></div>
+    <div><button class="btn btn-info" type="submit">Search</button> <a class="btn btn-outline" href="<?= e($self) ?>">Reset</a></div>
   </form>
 
   <p class="muted small" style="margin:.75rem 0 .5rem"><?= (int)$total ?> client(s)</p>
@@ -101,14 +101,14 @@ admin_start('Clients', 'clients');
           <td><?= $c['last_login'] ? e(date('M j, Y g:i A', strtotime($c['last_login']))) : '<span class="muted">Never</span>' ?></td>
           <td><?= (int)$c['login_count'] ?></td>
           <td><a class="link" href="<?= e(url('admin/transactions.php?q=' . urlencode($c['email']))) ?>"><?= (int)$c['req_count'] ?></a><?= $c['open_count'] ? '<span class="sub">' . (int)$c['open_count'] . ' open</span>' : '' ?></td>
-          <td><span class="badge <?= $on ? 'badge-completed' : 'badge-declined' ?>"><?= $on ? 'Active' : 'Disabled' ?></span></td>
+          <td><span class="badge <?= $on ? 'badge-approved' : 'badge-declined' ?>"><?= $on ? 'Active' : 'Disabled' ?></span></td>
           <td>
             <div class="row-actions">
-              <a class="link" href="<?= e($selfQ . ($q !== '' ? '&' : '?') . 'edit=' . (int)$c['id']) ?>">Edit</a>
+              <a class="icon-btn edit" title="Edit" aria-label="Edit" href="<?= e($selfQ . ($q !== '' ? '&' : '?') . 'edit=' . (int)$c['id']) ?>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></a>
               <form method="post" action="<?= e($selfQ) ?>"><?= csrf_field() ?><input type="hidden" name="id" value="<?= (int)$c['id'] ?>"><input type="hidden" name="action" value="<?= $on ? 'disable' : 'enable' ?>">
-                <button class="linkbtn link" type="submit" <?= $on ? 'onclick="return confirm(\'Disable this account? They will not be able to log in.\')"' : '' ?>><?= $on ? 'Disable' : 'Enable' ?></button></form>
+                <button class="icon-btn <?= $on ? 'disable' : 'enable' ?>" title="<?= $on ? 'Disable' : 'Enable' ?>" aria-label="<?= $on ? 'Disable' : 'Enable' ?>" type="submit" <?= $on ? 'onclick="return confirm(\'Disable this account? They will not be able to log in.\')"' : '' ?>><?= $on ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>' ?></button></form>
               <form method="post" action="<?= e($selfQ) ?>" onsubmit="return confirm('Delete this account? Their requests stay in Transactions without an account. This cannot be undone.')"><?= csrf_field() ?><input type="hidden" name="id" value="<?= (int)$c['id'] ?>"><input type="hidden" name="action" value="delete">
-                <button class="linkbtn link link-danger" type="submit">Delete</button></form>
+                <button class="icon-btn delete" title="Delete" aria-label="Delete" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></form>
             </div>
           </td>
         </tr>

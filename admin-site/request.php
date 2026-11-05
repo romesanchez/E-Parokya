@@ -81,7 +81,7 @@ admin_start($r['reference_no'], $archived ? 'archive' : 'transactions');
       <div><label for="phone">Contact number</label><input id="phone" name="phone" maxlength="40" value="<?= e($v['phone']) ?>"></div>
       <div><label for="preferred_date">Preferred date</label><input id="preferred_date" name="preferred_date" type="date" value="<?= e($v['preferred_date']) ?>"></div>
       <div class="full"><label for="notes">Notes</label><textarea id="notes" name="notes" rows="3" maxlength="1000"><?= e($v['notes']) ?></textarea></div>
-      <div class="full toolbar"><button class="btn btn-primary" type="submit">Save changes</button></div>
+      <div class="full toolbar"><button class="btn btn-success" type="submit">Save changes</button></div>
     </form>
 
     <div style="display:grid;gap:1rem;align-content:start">
@@ -92,7 +92,7 @@ admin_start($r['reference_no'], $archived ? 'archive' : 'transactions');
           <dt>Processed by</dt><dd><?= e($r['staff_name'] ?? ($r['method'] === 'online' ? 'Self-service (online)' : '—')) ?></dd>
           <dt>Last update</dt><dd><?= e(date('M j, Y g:i A', strtotime($r['updated_at']))) ?></dd>
           <dt>Schedule</dt><dd><?php if ($r['event_date']): ?><?= e(fmt_date($r['event_date'])) ?> · <?= e(fmt_time($r['event_time'])) ?><br><?= e($r['venue']) ?><?= $r['officiant'] ? ' · ' . e($r['officiant']) : '' ?><?php else: ?>Not scheduled<?php endif; ?>
-            <?php if (!$archived): ?><br><a class="link" href="<?= e(url('admin/schedule.php?request=' . $id)) ?>"><?= $r['event_date'] ? 'Edit schedule' : 'Set schedule' ?></a><?php endif; ?></dd>
+            <?php if (!$archived): ?><br><a class="act <?= $r['event_date'] ? 'act-edit' : 'act-success' ?>" href="<?= e(url('admin/schedule.php?request=' . $id)) ?>"><?= $r['event_date'] ? 'Edit schedule' : 'Set schedule' ?></a><?php endif; ?></dd>
         </dl>
       </section>
 
@@ -101,12 +101,12 @@ admin_start($r['reference_no'], $archived ? 'archive' : 'transactions');
         <?php if ($archived): ?>
           <p class="muted small" style="margin-bottom:.6rem">This request is archived. Restore it, or delete it for good (this also removes its schedule and cannot be undone).</p>
           <div class="toolbar">
-            <form method="post" action="<?= e($self) ?>"><?= csrf_field() ?><input type="hidden" name="action" value="restore"><button class="btn btn-outline" type="submit">Restore</button></form>
+            <form method="post" action="<?= e($self) ?>"><?= csrf_field() ?><input type="hidden" name="action" value="restore"><button class="btn btn-info" type="submit">Restore</button></form>
             <form method="post" action="<?= e($self) ?>" onsubmit="return confirm('Delete <?= e(addslashes($r['full_name'])) ?> permanently? This cannot be undone.')"><?= csrf_field() ?><input type="hidden" name="action" value="delete"><button class="btn-danger" type="submit">Delete permanently</button></form>
           </div>
         <?php elseif (in_array($r['status'], ['completed', 'declined'], true)): ?>
           <p class="muted small" style="margin-bottom:.6rem">The request is <?= e(strtolower(STATUS_LABELS[$r['status']])) ?>. Archive it to remove it from the lists and the tracker.</p>
-          <form method="post" action="<?= e($self) ?>" onsubmit="return confirm('Archive this client?')"><?= csrf_field() ?><input type="hidden" name="action" value="archive"><button class="btn btn-primary" type="submit">Archive client</button></form>
+          <form method="post" action="<?= e($self) ?>" onsubmit="return confirm('Archive this client?')"><?= csrf_field() ?><input type="hidden" name="action" value="archive"><button class="btn btn-warning" type="submit">Archive client</button></form>
         <?php else: ?>
           <p class="muted small">Still <?= e(strtolower(STATUS_LABELS[$r['status']])) ?>. Mark it <strong>Completed</strong> (or <strong>Declined</strong>) first, then you can archive it.</p>
         <?php endif; ?>

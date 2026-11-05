@@ -46,10 +46,6 @@ page_start(
     <p class="eyebrow">Est. 1898 · San Roque</p>
     <h1>A house of prayer at the heart of the community</h1>
     <p class="hero-lead">All are welcome. Join us for the Holy Mass, receive the sacraments, and let the parish walk with you through life's milestones.</p>
-    <div class="hero-actions">
-      <a href="request.php" class="btn btn-accent">Request a Service</a>
-      <a href="#mass-times" class="btn btn-ghost-light">View Mass Times</a>
-    </div>
   </div>
 </section>
 
@@ -102,8 +98,6 @@ page_start(
         <?php endforeach; ?>
       </div>
     </div>
-
-    <div class="center mt-10"><a href="request.php" class="btn btn-primary">Submit a Service Request</a></div>
   </div>
 </section>
 

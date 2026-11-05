@@ -55,13 +55,13 @@ admin_start('Archive', 'archive');
       </select></div>
     <div><label for="from">Received from</label><input id="from" name="from" type="date" value="<?= e($f['from']) ?>"></div>
     <div><label for="to">Received to</label><input id="to" name="to" type="date" value="<?= e($f['to']) ?>"></div>
-    <div><button class="btn btn-primary" type="submit">Filter</button> <a class="btn btn-outline" href="<?= e($self) ?>">Reset</a></div>
+    <div><button class="btn btn-info" type="submit">Filter</button> <a class="btn btn-outline" href="<?= e($self) ?>">Reset</a></div>
   </form>
 
   <form method="post" action="<?= e($selfQ) ?>">
     <?= csrf_field() ?>
     <div class="bulkbar">
-      <button class="btn btn-outline btn-sm" type="submit" name="action" value="restore">Restore selected</button>
+      <button class="btn btn-info btn-sm" type="submit" name="action" value="restore">Restore selected</button>
       <button class="btn-danger btn-sm" type="submit" name="action" value="delete" onclick="return confirm('Permanently delete the selected requests? This cannot be undone.')">Delete selected permanently</button>
       <span class="muted small"><?= (int)$total ?> archived</span>
     </div>

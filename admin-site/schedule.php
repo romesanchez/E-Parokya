@@ -94,7 +94,7 @@ admin_start('Scheduling', 'schedule');
     <div class="field full"><label for="notes">Notes <span class="muted normal">(optional)</span></label>
       <textarea id="notes" name="notes" rows="2" maxlength="500"><?= e($form['notes']) ?></textarea></div>
     <?php if ($error): ?><p class="alert-error full" role="alert"><?= e($error) ?></p><?php endif; ?>
-    <div class="full"><button type="submit" class="btn btn-primary">Save schedule</button></div>
+    <div class="full"><button type="submit" class="btn btn-success">Save schedule</button></div>
   </form>
 
   <?php foreach ([['Upcoming', $upcoming, true], ['Recent past', $past, false]] as [$title, $list, $canEdit]): ?>
@@ -113,12 +113,12 @@ admin_start('Scheduling', 'schedule');
             <td><strong><?= e($s['full_name']) ?></strong><br><span class="muted"><?= e(SERVICE_LABELS[$s['service_type']] ?? $s['service_type']) ?></span></td>
             <?php if ($canEdit): ?>
             <td style="white-space:nowrap">
-              <a class="link" href="<?= e($self . '?request=' . (int)$s['request_id']) ?>">Edit</a>
+              <a class="act act-edit" href="<?= e($self . '?request=' . (int)$s['request_id']) ?>">Edit</a>
               <form method="post" action="<?= e($self) ?>" style="display:inline" onsubmit="return confirm('Remove this schedule?')">
                 <?= csrf_field() ?>
                 <input type="hidden" name="action" value="remove">
                 <input type="hidden" name="request_id" value="<?= (int)$s['request_id'] ?>">
-                <button class="linkbtn link" type="submit">Remove</button>
+                <button class="act act-delete" type="submit">Remove</button>
               </form>
             </td>
             <?php endif; ?>

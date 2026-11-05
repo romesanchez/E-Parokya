@@ -50,7 +50,7 @@ admin_start('Login Activity', 'logins');
       <select id="who" name="who"><?php foreach ([''=>'Everyone','user'=>'Parishioners','admin'=>'Staff'] as $k => $l): ?><option value="<?= e($k) ?>" <?= $f['who'] === $k ? 'selected' : '' ?>><?= e($l) ?></option><?php endforeach; ?></select></div>
     <div><label for="from">From</label><input id="from" name="from" type="date" value="<?= e($f['from']) ?>"></div>
     <div><label for="to">To</label><input id="to" name="to" type="date" value="<?= e($f['to']) ?>"></div>
-    <div><button class="btn btn-primary" type="submit">Filter</button> <a class="btn btn-outline" href="<?= e($self) ?>">Reset</a></div>
+    <div><button class="btn btn-info" type="submit">Filter</button> <a class="btn btn-outline" href="<?= e($self) ?>">Reset</a></div>
   </form>
 
   <p class="muted small" style="margin:.75rem 0 .5rem"><?= (int)$total ?> event(s)</p>
@@ -64,7 +64,7 @@ admin_start('Login Activity', 'logins');
           <td style="white-space:nowrap"><?= e(date('M j, Y g:i A', strtotime($l['created_at']))) ?></td>
           <td><strong><?= e($l['actor']) ?></strong><?php if ($l['account_email'] && $l['account_email'] !== $l['actor']): ?><span class="sub"><?= e($l['account_email']) ?></span><?php endif; ?></td>
           <td><?= $adm ? 'Staff' : 'Parishioner' ?></td>
-          <td><span class="badge <?= $failed ? 'badge-declined' : 'badge-completed' ?>"><?= e(LOG_LABELS[$l['action']] ?? $l['action']) ?></span></td>
+          <td><span class="badge <?= $failed ? 'badge-declined' : 'badge-approved' ?>"><?= e(LOG_LABELS[$l['action']] ?? $l['action']) ?></span></td>
           <td class="muted"><?= e($l['ip']) ?></td>
         </tr>
       <?php endforeach; ?>

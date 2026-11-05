@@ -285,3 +285,101 @@ html.side-open .user-side { transform: none; }
   .reel-slide, .reel-thumb { transition: none; }
   .reel-slide.active .reel-photo, .reel-slide.active .reel-tag, .reel-slide.active .w > span, .reel-slide.active .reel-meta, .no-photo .reel-parol { animation: none; }
 }
+
+/* ===================== Header nav + account menu ===================== */
+/* ---------- Header nav ---------- */
+.nav { gap: 1.5rem; font-size: .95rem; }
+.nav-item { position: relative; }
+.site-header { position: relative; z-index: 40; }
+.has-menu { position: static; }
+.brand { min-width: 0; }
+
+/* Services trigger */
+.nav-trigger { position: relative; display: inline-flex; align-items: center; gap: .45rem; padding: .5rem .25rem; background: none; border: 0; border-bottom: 2px solid transparent; font: inherit; font-weight: 500; color: var(--foreground); cursor: pointer; transition: color .15s, border-color .15s; }
+.nav-trigger::after { content: ""; position: absolute; left: -.5rem; right: -.5rem; top: 100%; height: 2.2rem; } /* keeps the menu open while the mouse moves down */
+.nav-trigger .chev { transition: transform .2s; }
+.nav-trigger.active, .has-menu.open .nav-trigger { color: var(--primary); }
+.has-menu.open .nav-trigger { border-bottom-color: var(--primary); }
+.has-menu.open .chev { transform: rotate(180deg); }
+
+/* Full-width dropdown */
+.nav-menu { position: absolute; left: 0; right: 0; top: 100%; background: var(--card); border-top: 1px solid var(--border); box-shadow: 0 20px 30px rgb(0 0 0 / .10); opacity: 0; visibility: hidden; transform: translateY(6px); transition: opacity .18s, transform .18s, visibility .18s; z-index: 50; }
+.has-menu.open .nav-menu, .has-menu:has(.nav-trigger:focus-visible) .nav-menu { opacity: 1; visibility: visible; transform: none; }
+@media (hover: hover) {
+  .nav-trigger:hover, .has-menu:hover .nav-trigger { color: var(--primary); }
+  .has-menu:hover .nav-trigger { border-bottom-color: var(--primary); }
+  .has-menu:hover .chev { transform: rotate(180deg); }
+  .has-menu:hover .nav-menu { opacity: 1; visibility: visible; transform: none; }
+}
+
+.menu-inner { display: grid; grid-template-columns: 1fr 1.4fr; gap: 3rem; align-items: start; padding-top: 2.25rem; padding-bottom: 2.5rem; }
+.menu-title { display: inline-flex; align-items: center; gap: 1rem; font: 600 1.9rem/1.2 var(--font-display); color: var(--foreground); transition: color .15s; }
+.menu-title svg { color: var(--primary); transition: transform .2s; }
+.menu-title:hover { color: var(--primary); }
+.menu-title:hover svg { transform: translateX(4px); }
+.menu-intro p { margin: .6rem 0 0; font-size: .95rem; color: var(--muted-foreground); }
+.menu-links { display: grid; grid-template-columns: 1fr 1fr; column-gap: 3rem; row-gap: .25rem; padding-top: .35rem; }
+.menu-links a { display: flex; align-items: center; gap: .65rem; padding: .8rem 0; font-size: 1rem; font-weight: 600; color: var(--foreground); transition: color .15s; }
+.menu-links a svg { color: var(--primary); flex-shrink: 0; transition: transform .15s; }
+.menu-links a:hover { color: var(--primary); }
+.menu-links a:hover svg { transform: translateX(4px); }
+
+/* Search */
+.search-btn { width: 2.5rem; height: 2.5rem; display: grid; place-items: center; background: var(--card); color: var(--primary); border: 0; border-radius: .4rem; box-shadow: 0 2px 8px rgb(0 0 0 / .13); cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.search-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgb(0 0 0 / .18); }
+.search-btn:focus-visible { outline: 3px solid color-mix(in oklab, var(--primary) 35%, transparent); outline-offset: 2px; }
+.search-pop { position: absolute; right: 0; top: calc(100% + .6rem); width: 22rem; max-width: 92vw; padding: .75rem; background: var(--card); border: 1px solid var(--border); border-radius: .75rem; box-shadow: 0 18px 40px rgb(0 0 0 / .14); z-index: 50; }
+.search-pop[hidden] { display: none; }
+.search-pop input { width: 100%; padding: .65rem .8rem; border: 1px solid var(--border); border-radius: .5rem; background: var(--background); font: inherit; font-size: .9rem; }
+.search-pop input:focus { outline: 2px solid color-mix(in oklab, var(--primary) 35%, transparent); border-color: var(--primary); }
+.search-results { margin-top: .5rem; max-height: 18rem; overflow-y: auto; }
+.search-hit { display: flex; flex-direction: column; padding: .55rem .65rem; border-radius: .5rem; line-height: 1.3; }
+.search-hit:hover { background: var(--secondary); }
+.search-hit strong { font-size: .88rem; font-weight: 600; }
+.search-hit small { font-size: .75rem; color: var(--muted-foreground); }
+.search-empty { margin: 0; padding: .8rem; text-align: center; font-size: .85rem; color: var(--muted-foreground); }
+
+/* Log in / My Requests button */
+.nav-login { position: relative; display: inline-flex; align-items: center; justify-content: center; padding: .75rem 1.75rem; border-radius: .3rem; background: linear-gradient(135deg, var(--primary) 0%, color-mix(in oklab, var(--primary) 62%, #ff6b57) 100%); color: var(--primary-foreground); font-size: .78rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; white-space: nowrap; box-shadow: inset 0 1px 0 rgb(255 255 255 / .22), 0 3px 10px color-mix(in oklab, var(--primary) 35%, transparent); transition: transform .15s, filter .15s, box-shadow .15s; }
+.nav-login:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: inset 0 1px 0 rgb(255 255 255 / .25), 0 7px 16px color-mix(in oklab, var(--primary) 42%, transparent); }
+.nav-login:active { transform: translateY(0) scale(.98); filter: brightness(.95); }
+.nav-login:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Signed-in: burger on the side; click it to show / hide the long account card ---------- */
+.acct { position: fixed; top: 0; left: 0; z-index: 70; }
+
+/* the burger: small button when closed, sits beside the avatar when open */
+.acct-burger { position: fixed; top: 1.05rem; left: 1rem; z-index: 72; width: 2.5rem; height: 2.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 0; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 2px 8px rgb(0 0 0 / .12); cursor: pointer; transition: background .15s, box-shadow .15s, border-color .15s; }
+.acct-burger span { display: block; width: 1.15rem; height: 2px; border-radius: 2px; background: var(--foreground); }
+.acct-burger:hover { background: var(--secondary); }
+.acct-burger:focus-visible { outline: 3px solid color-mix(in oklab, var(--primary) 35%, transparent); outline-offset: 2px; }
+.acct.open .acct-burger { top: 2.5rem; left: 12.4rem; background: transparent; border-color: transparent; box-shadow: none; }
+.acct.open .acct-burger:hover { background: color-mix(in oklab, var(--foreground) 8%, transparent); }
+
+/* the long card */
+.acct-card { position: fixed; top: 0; left: 0; bottom: 0; z-index: 71; width: 16rem; display: flex; flex-direction: column; padding: 1.5rem 1.25rem; background: var(--card); border-right: 1px solid var(--border); box-shadow: 0 0 30px rgb(0 0 0 / .12); transform: translateX(-100%); visibility: hidden; transition: transform .2s ease, visibility 0s linear .2s; }
+.acct.open .acct-card { transform: none; visibility: visible; transition: transform .2s ease; }
+.acct-av { width: 4.5rem; height: 4.5rem; margin: 0 auto; display: grid; place-items: center; border-radius: 50%; color: #fff; font-size: 1.6rem; font-weight: 600; letter-spacing: .02em; user-select: none; }
+.acct-name { margin-top: .9rem; text-align: center; font-weight: 600; word-break: break-word; }
+.acct-email { margin-top: .1rem; text-align: center; font-size: .8125rem; color: var(--muted-foreground); word-break: break-all; }
+.acct-logout { margin-top: auto; }
+
+/* desktop: the page makes room for the card */
+@media (min-width: 900px) { html.acct-open .site { margin-left: 16rem; } }
+
+/* leave room in the header so the logo is not under the burger */
+@media (max-width: 1279px) { .has-side .head-left { padding-left: 3.8rem; } }
+
+/* ---------- Phones ---------- */
+@media (max-width: 700px) {
+  .header-inner { gap: .75rem; }
+  .nav { width: 100%; justify-content: space-between; gap: .75rem; }
+  .nav-item.nav-search { position: static; }
+  .nav-login { padding: .65rem 1.2rem; }
+  .search-pop { position: absolute; left: .75rem; right: .75rem; top: 100%; width: auto; max-width: none; }
+  .nav-menu { max-height: 70vh; overflow-y: auto; }
+  .menu-inner { grid-template-columns: 1fr; gap: 1rem; padding-top: 1.5rem; padding-bottom: 1.5rem; }
+  .menu-title { font-size: 1.4rem; }
+  .menu-links { grid-template-columns: 1fr; }
+  .menu-links a { padding: .7rem 0; }
+}

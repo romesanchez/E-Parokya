@@ -201,3 +201,63 @@ input:focus, select:focus, textarea:focus { border-color: var(--ring); box-shado
 .modal-card p { font-size: .875rem; color: var(--muted-foreground); margin-bottom: 1.5rem; }
 .modal-card .btn { padding: .625rem 2.5rem; font-size: .75rem; letter-spacing: .05em; }
 @keyframes modal-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ===== Dashboard redesign (idagdag sa DULO ng admin-site/assets/admin.css) ===== */
+
+/* Status colors, same as the tracker: pending = orange, approved = blue, completed = green */
+.badge-approved  { background: var(--c-blue-bg);  color: var(--c-blue);  border-color: var(--c-blue-bd); }
+.badge-completed { background: var(--c-green-bg); color: var(--c-green); border-color: var(--c-green-bd); }
+
+/* Tones used by the KPI cards */
+.tone-brand  { --t: var(--primary);  --t-bg: color-mix(in oklab, var(--primary) 10%, transparent); }
+.tone-orange { --t: var(--c-orange); --t-bg: var(--c-orange-bg); }
+.tone-blue   { --t: var(--c-blue);   --t-bg: var(--c-blue-bg); }
+.tone-green  { --t: var(--c-green);  --t-bg: var(--c-green-bg); }
+.tone-gray   { --t: var(--c-gray);   --t-bg: var(--c-gray-bg); }
+.tone-red    { --t: var(--c-red);    --t-bg: var(--c-red-bg); }
+
+/* KPI row */
+.dash-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr)); gap: 1rem; margin: 1.25rem 0 1.5rem; }
+.dash-kpi { display: flex; flex-direction: column; gap: .15rem; padding: 1.1rem 1.2rem; border-radius: .75rem; text-decoration: none; color: inherit; transition: transform .15s, box-shadow .15s, border-color .15s; }
+.dash-kpi:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgb(0 0 0 / .08); }
+.dash-kpi-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.dash-kpi .chip { width: 2.1rem; height: 2.1rem; flex-shrink: 0; display: grid; place-items: center; border-radius: .6rem; background: var(--t-bg); color: var(--t); font-size: 1rem; font-weight: 700; }
+.dash-kpi .n { font: 700 2.2rem/1.1 var(--font-display); margin-top: .55rem; }
+.dash-kpi small { color: var(--muted-foreground); font-size: .78rem; line-height: 1.35; }
+.dash-kpi.warn { border-color: var(--t); }
+.dash-kpi.warn .n { color: var(--t); }
+
+/* Two-column layout */
+.dash-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+.dash-col { display: grid; gap: 1.25rem; }
+@media (max-width: 1000px) { .dash-grid { grid-template-columns: 1fr; } }
+
+/* Panels */
+.dash-panel { padding: 1.25rem 1.35rem; border-radius: .75rem; }
+.dash-head { display: flex; justify-content: space-between; align-items: center; gap: .75rem; margin-bottom: .6rem; }
+.dash-head h2 { font: 600 1.2rem var(--font-display); margin: 0; }
+.dash-head a { font-size: .8rem; font-weight: 600; color: var(--primary); text-decoration: none; }
+.dash-head a:hover { text-decoration: underline; }
+.dash-empty { margin: .5rem 0 0; padding: 1rem; text-align: center; color: var(--muted-foreground); font-size: .88rem; background: var(--secondary); border-radius: .6rem; }
+
+/* List rows */
+.dash-list { display: flex; flex-direction: column; }
+.dash-row { display: flex; align-items: center; gap: .85rem; padding: .7rem .6rem; margin: 0 -.6rem; border-top: 1px solid var(--border); border-radius: .5rem; text-decoration: none; color: inherit; }
+.dash-row:first-child { border-top-color: transparent; }
+a.dash-row:hover { background: var(--secondary); }
+.dash-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .1rem; }
+.dash-main strong { font-size: .92rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-main small { color: var(--muted-foreground); font-size: .78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-end { flex-shrink: 0; text-align: right; font-size: .8rem; color: var(--muted-foreground); white-space: nowrap; }
+
+/* Round initial */
+.av { width: 2.3rem; height: 2.3rem; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; background: color-mix(in oklab, var(--primary) 12%, transparent); color: var(--primary); font-weight: 700; font-size: .85rem; }
+
+/* Date chip for the schedule */
+.date-chip { width: 2.7rem; flex-shrink: 0; text-align: center; border: 1px solid var(--border); border-radius: .55rem; overflow: hidden; background: var(--card); }
+.date-chip b { display: block; background: var(--primary); color: #fff; font-size: .6rem; letter-spacing: .06em; text-transform: uppercase; padding: .12rem 0; }
+.date-chip i { display: block; font: 700 1.05rem/1.55 var(--font-display); font-style: normal; }
+
+/* Requests by service */
+.dash-bar { display: grid; grid-template-columns: 6.5rem 1fr 1.8rem; gap: .75rem; align-items: center; font-size: .85rem; padding: .45rem 0; }
+.dash-bar strong { text-align: right; }
