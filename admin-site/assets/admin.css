@@ -410,3 +410,129 @@ body.admin-app { background: var(--background); }
 }
 .method-pill.m-online   { --dot: #16a34a; }  /* green */
 .method-pill.m-assisted { --dot: #7c3aed; }  /* purple (on-site / assisted by staff) */
+
+/* =====================================================================
+   THEME REFRESH — maroon + gold on cream. Mas malambot sa mata.
+   (Nasa pinakadulo ito para ma-override ang mga naunang kulay.)
+   ===================================================================== */
+:root {
+  --maroon:      #6b2d26;
+  --maroon-dark: #54221d;
+  --maroon-soft: #f3e6e2;
+  --gold:        #c9a24b;
+  --gold-dark:   #b08a35;
+  --gold-soft:   #f7efd9;
+  --ink:         #3a2a22;
+
+  /* Status colors: muted / earthy para hindi nakakasilaw */
+  --c-green:  #4a7c59;  --c-green-bg:  #e7f0e9;  --c-green-bd:  #bcd4c2;
+  --c-red:    #a3342c;  --c-red-bg:    #f6e4e1;  --c-red-bd:    #e3b9b3;
+  --c-orange: #b5651d;  --c-orange-bg: #f8ebdb;  --c-orange-bd: #e7c8a0;
+  --c-yellow: #8a6a1f;  --c-yellow-bg: #f7efd9;  --c-yellow-bd: #e4d199;
+  --c-blue:   #4a6a8f;  --c-blue-bg:   #e6edf4;  --c-blue-bd:   #bccbdd;
+  --c-gray:   #6b625a;  --c-gray-bg:   #f3efe8;  --c-gray-bd:   #d9d1c5;
+}
+
+/* ---------- Buttons ---------- */
+.btn { border-radius: .55rem; font-weight: 600; letter-spacing: .01em; transition: background .15s, border-color .15s, color .15s, box-shadow .15s; }
+.btn:focus-visible, .act:focus-visible { outline: 3px solid color-mix(in oklab, var(--gold) 55%, transparent); outline-offset: 2px; }
+
+/* Main action (Save, Add, Record, Generate) = maroon */
+.btn-primary, .btn-success { background: var(--maroon); color: #fbf3e6; border-color: var(--maroon); box-shadow: 0 1px 2px rgb(84 34 29 / .25); }
+.btn-primary:hover, .btn-success:hover { background: var(--maroon-dark); border-color: var(--maroon-dark); filter: none; }
+
+/* Secondary action (Filter, Search, Verify, Restore) = gold */
+.btn-info, .btn-accent { background: var(--gold); color: #2f2210; border-color: var(--gold); }
+.btn-info:hover, .btn-accent:hover { background: var(--gold-dark); border-color: var(--gold-dark); color: #fff; filter: none; }
+
+/* Outline = maroon line, fills on hover */
+.btn-outline, .btn-outline-info { background: transparent; color: var(--maroon); border-color: color-mix(in oklab, var(--maroon) 55%, transparent); }
+.btn-outline:hover, .btn-outline-info:hover { background: var(--maroon); color: #fbf3e6; border-color: var(--maroon); }
+
+.btn-outline-success { color: var(--c-green); border-color: var(--c-green-bd); background: transparent; }
+.btn-outline-success:hover { background: var(--c-green); border-color: var(--c-green); color: #fff; }
+.btn-outline-neutral { color: var(--c-gray); border-color: var(--c-gray-bd); background: transparent; }
+.btn-outline-neutral:hover { background: var(--c-gray); border-color: var(--c-gray); color: #fff; }
+.btn-outline-warning { color: var(--c-orange); border-color: var(--c-orange-bd); background: transparent; }
+.btn-outline-warning:hover { background: var(--c-orange); border-color: var(--c-orange); color: #fff; }
+.btn-outline-danger { color: var(--c-red); border-color: var(--c-red-bd); background: transparent; }
+.btn-outline-danger:hover { background: var(--c-red); border-color: var(--c-red); color: #fff; }
+
+.btn-warning { background: var(--c-orange); border-color: var(--c-orange); color: #fff; }
+.btn-warning:hover { background: #99540f; border-color: #99540f; filter: none; }
+.btn-danger  { background: var(--c-red); border-color: var(--c-red); color: #fff; }
+.btn-danger:hover { background: #862820; border-color: #862820; filter: none; }
+
+/* Tracker forward buttons */
+.btn.btn-to-approved  { background: var(--c-blue);  border-color: var(--c-blue);  color: #fff; }
+.btn.btn-to-approved:hover  { background: #3b5877; border-color: #3b5877; filter: none; }
+.btn.btn-to-completed { background: var(--c-green); border-color: var(--c-green); color: #fff; }
+.btn.btn-to-completed:hover { background: #3b664a; filter: none; }
+.btn.btn-to-completed::before { color: var(--c-green); }
+
+/* Small action pills (Edit / Delete / Remove ...) */
+.act { border-radius: .45rem; font-weight: 600; }
+.act-edit    { color: #7a5a14; background: var(--gold-soft);  border-color: var(--c-yellow-bd); }
+.act-delete  { color: var(--c-red);    background: var(--c-red-bg);    border-color: var(--c-red-bd); }
+.act-success { color: var(--c-green);  background: var(--c-green-bg);  border-color: var(--c-green-bd); }
+.act-info    { color: var(--c-blue);   background: var(--c-blue-bg);   border-color: var(--c-blue-bd); }
+.act-warn    { color: var(--c-orange); background: var(--c-orange-bg); border-color: var(--c-orange-bd); }
+
+/* Tracker tabs / status badges use the muted palette */
+.s-pending   { --tab: #b5651d; }
+.s-approved  { --tab: #4a6a8f; }
+.s-completed { --tab: #4a7c59; }
+.s-declined  { --tab: #a3342c; }
+.trk-tabs a.trk-tab[class*="s-"] { opacity: .7; }
+.trk-tabs a.trk-tab[class*="s-"].active { opacity: 1; }
+
+/* Sidebar */
+.side-link { border-radius: .55rem; }
+.side-link:hover { background: var(--maroon-soft); color: var(--maroon); }
+.side-link.active { background: var(--maroon); color: #fbf3e6; box-shadow: 0 1px 3px rgb(84 34 29 / .3); }
+
+/* ---------- Dashboard ---------- */
+.admin-app .container.wide { max-width: 80rem; padding-top: 2rem; }
+.page-head { margin-bottom: 1.5rem; align-items: flex-end; }
+.page-head .page-title { font-size: 1.9rem; font-weight: 600; color: var(--ink); letter-spacing: -.01em; }
+.page-head .muted { margin-top: .25rem; }
+
+/* Summary cards: mas maluwag, walang matigas na kulay */
+.dash-kpis { grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr)); gap: 1.1rem; margin: 0 0 1.75rem; }
+.dash-kpi { padding: 1.2rem 1.3rem; border-radius: 1rem; border: 1px solid var(--border); box-shadow: 0 1px 2px rgb(58 42 34 / .05); position: relative; overflow: hidden; }
+.dash-kpi::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--t); opacity: .75; }
+.dash-kpi:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgb(58 42 34 / .09); }
+.dash-kpi .label-caps { font-size: .7rem; letter-spacing: .07em; }
+.dash-kpi .chip { width: 2.2rem; height: 2.2rem; border-radius: .7rem; font-size: .95rem; }
+.dash-kpi .n { font-size: 2.3rem; font-weight: 600; color: var(--ink); margin-top: .5rem; }
+.dash-kpi small { font-size: .8rem; margin-top: .1rem; }
+.dash-kpi.warn { border-color: color-mix(in oklab, var(--t) 40%, var(--border)); background: color-mix(in oklab, var(--t-bg) 55%, var(--card)); }
+.dash-kpi.warn .n { color: var(--t); }
+
+/* Panels */
+.dash-grid { gap: 1.5rem; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
+.dash-col { gap: 1.5rem; }
+.dash-panel { padding: 1.4rem 1.5rem; border-radius: 1rem; box-shadow: 0 1px 2px rgb(58 42 34 / .05); }
+.dash-head { margin-bottom: .85rem; padding-bottom: .85rem; border-bottom: 1px solid var(--border); }
+.dash-head h2 { font-size: 1.1rem; font-weight: 600; color: var(--ink); }
+.dash-head a { color: var(--maroon); padding: .2rem .55rem; border-radius: .4rem; }
+.dash-head a:hover { background: var(--maroon-soft); text-decoration: none; }
+
+.dash-row { padding: .8rem .65rem; border-top: 1px solid color-mix(in oklab, var(--border) 60%, transparent); }
+.dash-row:first-child { border-top-color: transparent; }
+a.dash-row:hover { background: color-mix(in oklab, var(--maroon-soft) 70%, transparent); }
+.dash-main strong { color: var(--ink); }
+.dash-empty { background: var(--gold-soft); color: #7a6430; border-radius: .75rem; padding: 1.1rem; }
+
+.av { background: var(--maroon-soft); color: var(--maroon); }
+.date-chip { border-radius: .65rem; border-color: var(--c-yellow-bd); }
+.date-chip b { background: var(--maroon); }
+
+.dash-bar { grid-template-columns: 7rem 1fr 1.8rem; }
+.bar-track { height: .55rem; background: var(--secondary); }
+.bar-fill { background: linear-gradient(90deg, var(--maroon), #9a4a3f); }
+
+.badge { font-weight: 600; }
+.flash-err { background: var(--c-red-bg); color: var(--c-red); border-color: var(--c-red-bd); }
+
+@media (max-width: 1000px) { .dash-grid { grid-template-columns: 1fr; } }

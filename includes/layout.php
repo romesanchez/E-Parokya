@@ -41,6 +41,7 @@ function page_start(string $title, string $description, string $active = ''): vo
         array_keys(SERVICE_LABELS),
         SERVICE_LABELS
     );
+    $searchItems[] = ['name' => 'Parish Events', 'desc' => 'Upcoming activities, fiestas and weddings', 'href' => 'events.php'];
     $searchItems[] = ['name' => 'Mass Schedule', 'desc' => 'Sunday and weekday Mass times', 'href' => 'index.php#mass-times'];
     ?><!doctype html>
 <html lang="en">
@@ -57,12 +58,16 @@ function page_start(string $title, string $description, string $active = ''): vo
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/style.css">
+  <script src="assets/datepicker.js" defer></script>
 </head>
 <body<?= $side ? ' class="has-side"' : '' ?>>
 <?php if ($side): ?>
 <div class="acct" id="acct">
   <button type="button" class="acct-burger" id="acct-toggle" aria-label="Account menu" aria-expanded="false" aria-controls="acct-card"><span></span><span></span><span></span></button>
   <aside class="acct-card" id="acct-card" aria-label="Your account">
+    <button type="button" class="acct-close" id="acct-close" aria-label="Close account menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
+    </button>
     <div class="acct-av" style="background:<?= e(avatar_color($u['name'])) ?>" aria-hidden="true"><?= e(user_initials($u['name'])) ?></div>
     <p class="acct-name"><?= e($u['name']) ?></p>
     <p class="acct-email"><?= e($u['email']) ?></p>
@@ -111,6 +116,14 @@ function page_start(string $title, string $description, string $active = ''): vo
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Info links -->
+        <div class="nav-links">
+          <a href="events.php"<?= $active === 'events' ? ' class="active"' : '' ?>>Events</a>
+          <a href="info.php?p=contact">Contact Us</a>
+          <a href="info.php?p=privacy">Privacy Policy</a>
+          <a href="info.php?p=agreement">Service Agreement</a>
         </div>
 
         <!-- Search -->
@@ -225,12 +238,22 @@ function page_end(): void
 <?php if ($side): ?>
 <script>
 (function () {
-  var box = document.getElementById('acct'), btn = document.getElementById('acct-toggle');
-  if (!box || !btn) { return; }
-  btn.addEventListener('click', function () {
-    var open = box.classList.toggle('open');
+  var box = document.getElementById('acct'),
+      btn = document.getElementById('acct-toggle'),
+      closeBtn = document.getElementById('acct-close');
+  if (!box || !btn || !closeBtn) { return; }
+
+  function setOpen(open) {
+    box.classList.toggle('open', open);
     document.documentElement.classList.toggle('acct-open', open);
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    (open ? closeBtn : btn).focus();
+  }
+
+  btn.addEventListener('click', function () { setOpen(true); });
+  closeBtn.addEventListener('click', function () { setOpen(false); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && box.classList.contains('open')) { setOpen(false); }
   });
 })();
 </script>

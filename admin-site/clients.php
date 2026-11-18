@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/admin_layout.php';
+require_once __DIR__ . '/../includes/password_reset.php';
 require_admin();
 
 $self = url('admin/clients.php');
@@ -21,6 +22,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         log_action($act === 'enable' ? 'client_enabled' : 'client_disabled', $c['email']);
         admin_flash('ok', $c['full_name'] . ($act === 'enable' ? ' can log in again.' : ' can no longer log in.'));
         redirect($selfQ);
+    } elseif ($act === 'reset_link') {
+        if ((int)($c['active'] ?? 1) !== 1) {
+            admin_flash('err', 'This account is disabled. Enable it first, then create the link.');
+        } else {
+            $token = create_password_reset($id, RESET_TTL_STAFF, (int)current_user()['id']);
+            $_SESSION['reset_link'] = ['id' => $id, 'link' => reset_link($token)];
+            log_action('client_reset_link', $c['email']);
+        }
+        redirect($selfQ . ($q !== '' ? '&' : '?') . 'edit=' . $id);
     } elseif ($act === 'delete') {
         delete_client($id);
         log_action('client_deleted', $c['email']);
@@ -76,6 +86,22 @@ admin_start('Clients', 'clients');
       <div class="full"><label for="new_password">Reset password <span class="muted normal">(leave blank to keep the current one)</span></label><input id="new_password" name="new_password" type="text" autocomplete="off" maxlength="72" placeholder="At least 8 characters"></div>
       <div class="full toolbar"><button class="btn btn-success" type="submit">Save</button><a class="btn btn-outline" href="<?= e($selfQ) ?>">Cancel</a></div>
     </form>
+    <?php
+      $rl = (!empty($_SESSION['reset_link']) && (int)$_SESSION['reset_link']['id'] === (int)$edit['id']) ? $_SESSION['reset_link'] : null;
+      unset($_SESSION['reset_link']);
+      $pubCfg = require __DIR__ . '/../includes/config.php';
+    ?>
+    <section class="card panel" style="margin-bottom:1rem">
+      <h2 style="font:600 1.25rem var(--font-display)">Password reset link</h2>
+      <?php if ($rl): ?>
+        <p class="muted small">Give this link to <?= e($edit['full_name']) ?> (in person, by call or by message). It works once and expires in 24 hours. It will not be shown again.</p>
+        <input type="text" readonly onclick="this.select()" value="<?= e($rl['link']) ?>" aria-label="Password reset link" style="width:100%">
+        <?php if (empty($pubCfg['public_url'])): ?><p class="muted small" style="margin-top:.5rem">Tip: set <code>public_url</code> in <code>includes/config.php</code> so this link always points to the public website.</p><?php endif; ?>
+      <?php else: ?>
+        <p class="muted small">If the parishioner cannot receive the reset email, create a one-time link and give it to them. They choose their own new password, so you never need to know it.</p>
+        <form method="post" action="<?= e($selfQ) ?>"><?= csrf_field() ?><input type="hidden" name="id" value="<?= (int)$edit['id'] ?>"><input type="hidden" name="action" value="reset_link"><button class="btn btn-info" type="submit">Create reset link</button></form>
+      <?php endif; ?>
+    </section>
     <?php $hist = client_logins((int)$edit['id']); if ($hist): ?>
       <section class="card panel" style="margin-bottom:1rem"><h2>Recent activity of <?= e($edit['full_name']) ?></h2>
         <table class="mini"><?php foreach ($hist as $h): ?><tr><td><?= e(LOG_LABELS[$h['action']] ?? $h['action']) ?></td><td class="muted"><?= e($h['ip']) ?></td><td class="muted" style="text-align:right"><?= e(date('M j, Y g:i A', strtotime($h['created_at']))) ?></td></tr><?php endforeach; ?></table>

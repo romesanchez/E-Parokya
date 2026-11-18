@@ -349,12 +349,11 @@ html.side-open .user-side { transform: none; }
 .acct { position: fixed; top: 0; left: 0; z-index: 70; }
 
 /* the burger: small button when closed, sits beside the avatar when open */
-.acct-burger { position: fixed; top: 1.05rem; left: 1rem; z-index: 72; width: 2.5rem; height: 2.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 0; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 2px 8px rgb(0 0 0 / .12); cursor: pointer; transition: background .15s, box-shadow .15s, border-color .15s; }
-.acct-burger span { display: block; width: 1.15rem; height: 2px; border-radius: 2px; background: var(--foreground); }
+.acct-burger { position: fixed; top: 1.2rem; left: 1rem; z-index: 72; width: 2.1rem; height: 2.1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 0; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 2px 8px rgb(0 0 0 / .12); cursor: pointer; transition: background .15s, box-shadow .15s, border-color .15s, opacity .15s .12s, visibility 0s linear 0s; }
+.acct-burger span { display: block; width: 1rem; height: 2px; border-radius: 2px; background: var(--foreground); }
 .acct-burger:hover { background: var(--secondary); }
 .acct-burger:focus-visible { outline: 3px solid color-mix(in oklab, var(--primary) 35%, transparent); outline-offset: 2px; }
-.acct.open .acct-burger { top: 2.5rem; left: 12.4rem; background: transparent; border-color: transparent; box-shadow: none; }
-.acct.open .acct-burger:hover { background: color-mix(in oklab, var(--foreground) 8%, transparent); }
+.acct.open .acct-burger { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .1s, visibility 0s linear .1s; }
 
 /* the long card */
 .acct-card { position: fixed; top: 0; left: 0; bottom: 0; z-index: 71; width: 16rem; display: flex; flex-direction: column; padding: 1.5rem 1.25rem; background: var(--card); border-right: 1px solid var(--border); box-shadow: 0 0 30px rgb(0 0 0 / .12); transform: translateX(-100%); visibility: hidden; transition: transform .2s ease, visibility 0s linear .2s; }
@@ -364,11 +363,17 @@ html.side-open .user-side { transform: none; }
 .acct-email { margin-top: .1rem; text-align: center; font-size: .8125rem; color: var(--muted-foreground); word-break: break-all; }
 .acct-logout { margin-top: auto; }
 
+/* X button: kanang taas ng drawer */
+.acct-close { position: absolute; top: 1rem; right: 1rem; width: 2.25rem; height: 2.25rem; display: grid; place-items: center; padding: 0; background: transparent; border: 1px solid var(--border); border-radius: .5rem; color: var(--foreground); cursor: pointer; transition: background .15s, border-color .15s; }
+.acct-close:hover { background: color-mix(in oklab, var(--foreground) 8%, transparent); }
+.acct-close:focus-visible { outline: 2px solid #1f6feb; outline-offset: 1px; border-color: #1f6feb; }
+.acct-card .acct-av { margin-top: 2.5rem; }
+
 /* desktop: the page makes room for the card */
 @media (min-width: 900px) { html.acct-open .site { margin-left: 16rem; } }
 
 /* leave room in the header so the logo is not under the burger */
-@media (max-width: 1279px) { .has-side .head-left { padding-left: 3.8rem; } }
+@media (max-width: 1279px) { .has-side .head-left { padding-left: 3.4rem; } }
 
 /* ---------- Phones ---------- */
 @media (max-width: 700px) {
@@ -383,3 +388,38 @@ html.side-open .user-side { transform: none; }
   .menu-links { grid-template-columns: 1fr; }
   .menu-links a { padding: .7rem 0; }
 }
+
+/* Homepage info links (moved from the login page) */
+.home-links { border-top: 1px solid var(--border); background: var(--card); }
+.home-links-inner { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem 2rem; padding-top: 1.5rem; padding-bottom: 1.5rem; font-size: .95rem; font-weight: 500; }
+.home-links a { color: var(--foreground); transition: color .15s; }
+.home-links a:hover { color: var(--primary); text-decoration: underline; text-underline-offset: 4px; }
+
+/* ---------- Header info links (Contact Us / Privacy Policy / Service Agreement) ---------- */
+.header-inner { flex-wrap: nowrap; gap: 1.5rem; }
+.head-left { flex: none; }
+.nav { gap: 1.25rem; font-size: .92rem; }
+.nav-links { display: flex; align-items: center; gap: 1.5rem; }
+.nav-links a { padding: .5rem .1rem; font-weight: 500; color: var(--foreground); border-bottom: 2px solid transparent; white-space: nowrap; transition: color .15s, border-color .15s; }
+.nav-links a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+/* Mas makitid na screen: Services / Search / Log in sa taas, links sa ilalim */
+@media (max-width: 1279px) {
+  .header-inner { flex-wrap: wrap; gap: .75rem; }
+  .nav { flex-wrap: wrap; width: 100%; justify-content: space-between; row-gap: .5rem; }
+  .nav-links { order: 5; width: 100%; flex-wrap: wrap; justify-content: center; gap: .25rem 1.25rem; padding-top: .6rem; border-top: 1px solid var(--border); }
+}
+
+.ev-month { font: 600 1.125rem var(--font-display); color: var(--primary); margin: 2rem 0 .75rem; }
+.ev-list { display: grid; gap: .75rem; }
+.ev { display: flex; gap: 1rem; padding: 1rem; }
+.ev-date { flex: 0 0 3.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid var(--border); padding-right: 1rem; }
+.ev-day { font: 600 1.75rem/1 var(--font-display); color: var(--primary); }
+.ev-mon { font-size: .8125rem; font-weight: 500; color: var(--muted-foreground); }
+.ev-body { min-width: 0; display: grid; gap: .25rem; }
+.ev-head { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.ev-head h3 { font: 600 1.125rem var(--font-display); }
+.ev-desc { margin-top: .25rem; }
+.ev.is-cancelled .ev-head h3 { text-decoration: line-through; color: var(--muted-foreground); }
+.ev.is-cancelled { opacity: .8; }
+.ev-more { margin-top: 1rem; text-align: center; }

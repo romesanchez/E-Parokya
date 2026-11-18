@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/admin_layout.php';
+require_once __DIR__ . '/../includes/altar.php';
 $me = require_admin();
 
 $self = url('admin/schedule.php');
@@ -18,8 +19,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!$req) {
         $error = 'Please choose a request.';
     } elseif ($act === 'remove') {
+                $sch = db()->prepare('SELECT id FROM schedules WHERE request_id = ?');
+        $sch->execute([$rid]);
+        if ($sid = (int)$sch->fetchColumn()) {
+            altar_purge_activity('schedule', $sid);
+        }
         delete_schedule($rid);
         log_action('schedule_removed', "#{$rid} {$req['full_name']}");
+                    if ($problems = altar_recheck_request($rid)) {
+                admin_flash('err', 'Schedule saved, but altar server conflicts need attention: ' . implode(' ', $problems) . ' Review them under Altar Servers.');
+            }
         redirect($self);
     } elseif ($act === 'save') {
         foreach ($form as $k => $_) {

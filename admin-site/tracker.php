@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/admin_layout.php';
+require_once __DIR__ . '/../includes/requirements.php';
 $me = require_admin();
 
 $service = get_str('service');
@@ -25,11 +26,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         admin_flash('err', 'Request not found.');
     } elseif ($act === 'move' && isset(STATUS_LABELS[$_POST['status'] ?? ''])) {
         $to = $_POST['status'];
-        if ($to !== $r['status']) {
-            update_status($id, $to);
-            log_action('status_changed', "{$r['reference_no']} {$r['full_name']}: {$r['status']} → {$to}");
+        $blocked = $to !== $r['status'] ? requirements_gate($id, $r['service_type'], $to) : null;
+        if ($blocked) {
+            admin_flash('err', $r['full_name'] . ': ' . $blocked . ' Open the request to review the documents.');
+        } else {
+            if ($to !== $r['status']) {
+                update_status($id, $to);
+                log_action('status_changed', "{$r['reference_no']} {$r['full_name']}: {$r['status']} → {$to}");
+            }
+            admin_flash('ok', "{$r['full_name']} moved to " . STATUS_LABELS[$to] . '.');
         }
-        admin_flash('ok', "{$r['full_name']} moved to " . STATUS_LABELS[$to] . '.');
     } elseif ($act === 'archive') {
         if (archive_request($id)) {
             log_action('request_archived', "{$r['reference_no']} {$r['full_name']}");
@@ -41,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect($self);
 }
 
+req_purge_orphans();
 $board = tracker_board($service);
 // Next / previous step for the quick buttons.
 $next = ['pending' => 'approved', 'approved' => 'completed'];
@@ -55,6 +62,7 @@ if (!isset($board[$tab])) {
     $tab = 'pending';
 }
 $cards = $board[$tab];
+$docProg = req_progress_bulk($cards);
 $qs = fn(array $extra) => '?' . http_build_query(array_filter($extra + ['service' => $service], fn($v) => $v !== ''));
 
 // Builds one small POST form (move / archive button).
@@ -118,6 +126,9 @@ admin_start('Tracker', 'tracker');
             <td>
               <div class="trk-name"><a href="<?= e(url('admin/request.php?id=' . $id)) ?>"><?= e($r['full_name']) ?></a></div>
               <div class="trk-sub"><?= e($r['reference_no']) ?> · <?= e(METHOD_LABELS[$r['method']] ?? $r['method']) ?></div>
+              <?php $dp = $docProg[$id] ?? null; if ($dp && $dp['required'] > 0): ?>
+                <div class="trk-sub">Documents: <strong style="color:<?= $dp['verified'] >= $dp['required'] ? 'var(--c-green)' : 'var(--c-orange)' ?>"><?= (int)$dp['verified'] ?>/<?= (int)$dp['required'] ?> verified</strong></div>
+              <?php endif; ?>
             </td>
             <td><?= e(SERVICE_LABELS[$r['service_type']] ?? $r['service_type']) ?></td>
             <td>

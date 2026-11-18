@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/requirements.php';
 $me = require_user();
 
 $values = ['service_type' => 'baptism', 'full_name' => '', 'email' => '', 'phone' => '', 'preferred_date' => '', 'notes' => ''];
@@ -57,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             $ref = get_request($rid)['reference_no'] ?? '';
             log_action('request_created', SERVICE_LABELS[$values['service_type']] . " request {$ref}");
-            $_SESSION['submitted'] = ['name' => $name, 'email' => $mail, 'ref' => $ref];
+            $_SESSION['submitted'] = ['name' => $name, 'email' => $mail, 'ref' => $ref, 'service' => $values['service_type']];
             redirect('request.php?done=1');
         } catch (Throwable $ex) {
             error_log($ex->getMessage());
@@ -79,6 +80,16 @@ if (isset($done)) {
       <p class="small" style="margin-top:1rem"><span class="muted">Your reference number</span><br>
         <strong style="font:600 1.5rem var(--font-display);letter-spacing:.05em"><?= e($done['ref']) ?></strong></p>
       <p class="muted small">Keep this number. You can quote it when you contact the parish office.</p>
+    <?php endif; ?>
+    <?php $needDocs = requirements_for($done['service'] ?? ''); ?>
+    <?php if ($needDocs): ?>
+      <div class="note small" style="text-align:left;margin-top:1rem">
+        <strong>Next step: upload your documents</strong>
+        <p class="muted" style="margin:.3rem 0">Open <em>My Requests</em> and upload a photo or scan of each item. Your request can be approved once the required ones are verified.</p>
+        <ul style="margin:.3rem 0 0 1.1rem;list-style:disc">
+          <?php foreach ($needDocs as $q): ?><li><?= e($q['label']) ?> <span class="muted">(<?= $q['required'] ? 'required' : 'optional' ?>)</span></li><?php endforeach; ?>
+        </ul>
+      </div>
     <?php endif; ?>
     <a href="request.php" class="btn btn-outline mt-8">Submit another request</a>
     <a href="my-requests.php" class="btn btn-primary mt-8">View My Requests</a>

@@ -52,6 +52,7 @@ function admin_start(string $title, string $active = ''): void
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= e(url('assets/style.css')) ?>">
   <link rel="stylesheet" href="<?= e(url('assets/admin.css')) ?>">
+  <script src="<?= e(url('assets/datepicker.js')) ?>" defer></script>
 </head>
 <body class="admin-app">
 <?php if (is_admin()): ?>
@@ -69,6 +70,8 @@ function admin_start(string $title, string $active = ''): void
       <?= $item('transactions', 'transactions.php', 'Transactions') ?>
       <?= $item('assisted', 'assisted.php', '+ Assisted Request') ?>
       <?= $item('schedule', 'schedule.php', 'Scheduling') ?>
+      <?= $item('events', 'events.php', 'Events') ?>
+      <?= $item('altar', 'altar.php', 'Altar Servers') ?>
       <?= $item('archive', 'archive.php', 'Archive', $arch) ?>
       <p class="side-label">People</p>
       <?= $item('clients', 'clients.php', 'Clients') ?>

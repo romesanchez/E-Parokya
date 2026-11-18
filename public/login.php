@@ -52,7 +52,7 @@ auth_start('Log in — St. Joseph Parish');
       <button type="submit" class="auth-submit" disabled>Log in</button>
     </form>
 
-    <p class="auth-forgot">Forgot your <a href="<?= e(url('info.php?p=contact')) ?>">password</a>? Contact the parish office.</p>
+    <p class="auth-forgot"><a href="forgot-password.php">Forgot your password?</a> Can't get the email? <a href="<?= e(url('info.php?p=contact')) ?>">Contact the parish office</a>.</p>
 
     <div class="auth-or"><span>OR</span></div>
 

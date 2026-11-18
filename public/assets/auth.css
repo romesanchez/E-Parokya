@@ -1,11 +1,11 @@
-/* ---- Split-screen login (left form, right page links + image) ---- */
+/* ---- Login / auth: centered card ---- */
 .auth-body { margin: 0; background: #fff; }
-.auth { display: flex; min-height: 100vh; }
+.auth { display: grid; place-items: center; min-height: 100vh; padding: 2rem 1rem; background: color-mix(in oklab, var(--secondary) 55%, white); }
 
-/* Left column */
-.auth-left { flex: 0 0 31.5rem; max-width: 100%; background: #fff; padding: 3.5rem 3.125rem 3rem; }
-.auth-brand { display: inline-flex; margin-bottom: 3.25rem; }
-.auth-title { font: 600 2.375rem/1.1 var(--font-sans); color: var(--foreground); margin: 0 0 2rem; }
+/* Centered card */
+.auth-left { width: 100%; max-width: 31.5rem; background: #fff; border: 1px solid var(--border); border-radius: .75rem; box-shadow: 0 20px 50px rgb(0 0 0 / .10); padding: 2.5rem 2.25rem; }
+.auth-brand { display: flex; justify-content: center; margin-bottom: 2rem; }
+.auth-title { font: 600 2.375rem/1.1 var(--font-sans); color: var(--foreground); margin: 0 0 2rem; text-align: center; }
 
 .auth-field { position: relative; margin-bottom: 1.25rem; }
 .auth-field input { height: 4.375rem; padding: 0 1.25rem; font-size: 1.125rem; background: #f1f2f4; border: 1px solid transparent; border-radius: 4px; box-shadow: none; }
@@ -16,6 +16,7 @@
 .auth-eye.on .slash { display: none; }
 
 .auth-error { color: var(--destructive); font-size: .9375rem; margin: .25rem 0 0; }
+.auth-ok { color: #166534; font-size: 1rem; line-height: 1.5; margin: .25rem 0 1rem; }
 
 .auth-submit { display: block; width: 100%; height: 3.75rem; margin-top: 2.5rem; border: 0; border-radius: 4px; background: var(--primary); color: #fff; font: 500 1.125rem var(--font-sans); cursor: pointer; transition: background .15s; }
 .auth-submit:disabled { background: color-mix(in oklab, var(--primary) 28%, white); cursor: not-allowed; }
@@ -40,20 +41,11 @@
 .auth-note { font-size: .875rem; color: var(--muted-foreground); margin-top: 1.75rem; }
 .auth-note a { color: var(--primary); text-decoration: underline; }
 
-/* Right column */
-.auth-right { flex: 1; min-width: 0; display: flex; flex-direction: column; background: color-mix(in oklab, var(--secondary) 55%, white); }
-.auth-nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 1rem 1.875rem; padding: 3.1rem 3.75rem 0; font-size: 1.125rem; font-weight: 500; color: var(--foreground); }
-.auth-nav a:hover { color: var(--primary); text-decoration: underline; text-underline-offset: 4px; }
-.auth-art { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem 3rem 4rem; }
-.auth-art img { width: min(100%, 40rem); aspect-ratio: 4 / 3; object-fit: cover; border-radius: 1.5rem; box-shadow: 0 20px 50px rgb(0 0 0 / .12); }
-
 /* Phones / small screens */
-@media (max-width: 56rem) {
-  .auth { flex-direction: column; }
-  .auth-left { flex-basis: auto; padding: 2rem 1.5rem; }
-  .auth-right { order: 2; }
-  .auth-art { display: none; }
-  .auth-nav { justify-content: center; padding: 1.5rem; font-size: 1rem; }
+@media (max-width: 30rem) {
+  .auth { padding: 1rem .75rem; }
+  .auth-left { padding: 1.75rem 1.25rem; }
+  .auth-title { font-size: 2rem; }
 }
 
 /* ---- Admin login: centered white card over a faded full-window photo ---- */

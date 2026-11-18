@@ -36,24 +36,7 @@ function auth_start(
 
 function auth_end(): void
 {
-    $links = [
-        'Home'                 => 'index.php',
-        'Contact Us'           => 'info.php?p=contact',
-        'Privacy Policy'       => 'info.php?p=privacy',
-        'Service Agreement'    => 'info.php?p=agreement',
-        'Learn About Security' => 'info.php?p=security',
-    ];
     ?>
-  </section>
-  <section class="auth-right">
-    <nav class="auth-nav" aria-label="Site">
-      <?php foreach ($links as $label => $href): ?>
-        <a href="<?= e(url($href)) ?>"><?= e($label) ?></a>
-      <?php endforeach; ?>
-    </nav>
-    <div class="auth-art">
-      <img src="<?= e(url('assets/hero-church.jpg')) ?>" alt="Interior of St. Joseph Parish church" width="1600" height="912">
-    </div>
   </section>
 </div>
 <script>

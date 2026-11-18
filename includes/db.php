@@ -32,14 +32,30 @@ const LOG_LABELS = [
     'client_enabled'        => 'Client account enabled',
     'client_deleted'        => 'Client account deleted',
     'document_issued'       => 'Document issued',
+    'event_created'         => 'Event created',
+    'event_updated'         => 'Event edited',
+    'event_cancelled'       => 'Event cancelled',
+    'event_restored'        => 'Event restored',
+    'event_deleted'         => 'Event deleted',
     'admin_password_changed' => 'Admin password changed',
     'admin_password_failed'  => 'Failed password change',
+    'reset_requested'        => 'Password reset requested',
+    'password_reset'         => 'Password reset completed',
+    'password_reset_failed'  => 'Invalid password reset link',
+    'client_reset_link'      => 'Reset link created by staff',
 ];
 
 const METHOD_LABELS = [
     'online'   => 'Online',
     'assisted' => 'Assisted',
 ];
+
+/** "14:30" -> 870 (minutes since midnight). */
+function time_to_minutes(string $t): int
+{
+    [$h, $m] = array_pad(array_map('intval', explode(':', $t)), 2, 0);
+    return $h * 60 + $m;
+}
 
 function make_reference(int $id, ?string $createdAt = null): string
 {
@@ -112,6 +128,39 @@ function ensure_schema(PDO $pdo, string $driver): void
         updated_at {$dt} NOT NULL
     ){$tail}");
 
+    $pdo->exec("CREATE TABLE IF NOT EXISTS events (
+        id {$pk},
+        title VARCHAR(150) NOT NULL,
+        event_type VARCHAR(20) NOT NULL DEFAULT 'other',
+        event_date {$d} NOT NULL,
+        start_time VARCHAR(5) NOT NULL,
+        end_time VARCHAR(5) NULL,
+        venue VARCHAR(120) NOT NULL,
+        description VARCHAR(1000) NULL,
+        status VARCHAR(10) NOT NULL DEFAULT 'published',
+        created_by {$int} NULL,
+        created_at {$dt} NOT NULL,
+        updated_at {$dt} NOT NULL
+    ){$tail}");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS altar_servers (
+        id {$pk},
+        full_name VARCHAR(120) NOT NULL,
+        phone VARCHAR(40) NULL,
+        notes VARCHAR(300) NULL,
+        active {$int} NOT NULL DEFAULT 1,
+        created_at {$dt} NOT NULL
+    ){$tail}");
+
+    // source_type is 'schedule' (schedules.id) or 'event' (events.id).
+    $pdo->exec("CREATE TABLE IF NOT EXISTS altar_assignments (
+        id {$pk},
+        server_id {$int} NOT NULL,
+        source_type VARCHAR(10) NOT NULL,
+        source_id {$int} NOT NULL,
+        created_at {$dt} NOT NULL,
+        UNIQUE (server_id, source_type, source_id)
+    ){$tail}");
+    
     $cols = $sqlite
         ? array_column($pdo->query('PRAGMA table_info(service_requests)')->fetchAll(), 'name')
         : array_column($pdo->query('SHOW COLUMNS FROM service_requests')->fetchAll(), 'Field');
@@ -274,7 +323,22 @@ function schedule_conflict(string $date, string $time, string $venue, int $excep
          WHERE s.event_date = ? AND s.event_time = ? AND LOWER(s.venue) = LOWER(?) AND s.request_id <> ? LIMIT 1'
     );
     $st->execute([$date, $time, $venue, $exceptRequest]);
-    return $st->fetch() ?: null;
+    if ($row = $st->fetch()) {
+        return $row;
+    }
+
+    // Parish events (events table) use the same venues, so they count as conflicts too.
+    $ev = db()->prepare("SELECT title, start_time, end_time FROM events WHERE status <> 'cancelled' AND event_date = ? AND LOWER(venue) = LOWER(?)");
+    $ev->execute([$date, $venue]);
+    $s = time_to_minutes($time);
+    foreach ($ev->fetchAll() as $r) {
+        $s2 = time_to_minutes($r['start_time']);
+        $e2 = $r['end_time'] ? time_to_minutes($r['end_time']) : $s2 + 60;
+        if ($s < $e2 && $s2 < $s + 60) {
+            return ['full_name' => $r['title'], 'service_type' => 'event'];
+        }
+    }
+    return null;
 }
 
 function save_schedule(int $rid, array $d): void

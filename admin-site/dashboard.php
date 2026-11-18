@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/admin_layout.php';
-require_admin();
+$me = require_admin();
 
 $counts = status_counts();
 $ls = login_stats();
@@ -15,6 +15,9 @@ $weekReq = requests_since(date('Y-m-d H:i:s', time() - 7 * 86400));
 $suspicious = suspicious_ips();
 
 // First letter of a name, for the round avatar.
+$hour = (int)date('G');
+$greet = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening');
+$first = trim(explode(' ', trim((string)($me['name'] ?? '')))[0] ?? '');
 $ini = fn(string $n): string => strtoupper(substr(trim($n), 0, 1)) ?: '?';
 $svc = fn(string $k): string => SERVICE_LABELS[$k] ?? $k;
 
@@ -33,12 +36,12 @@ admin_start('Dashboard', 'dashboard');
 <div class="container wide">
   <div class="page-head">
     <div>
-      <h1 class="page-title left">Dashboard</h1>
+      <h1 class="page-title left"><?= e($greet . ($first !== '' ? ', ' . $first : '')) ?></h1>
       <p class="muted small"><?= e(date('l, F j, Y')) ?> · <?= count_users() ?> registered parishioners · <?= (int)$weekReq ?> new request(s) this week</p>
     </div>
     <div class="toolbar">
       <a href="<?= e(url('admin/assisted.php')) ?>" class="btn btn-success">+ Assisted Request</a>
-      <a href="<?= e(url('admin/tracker.php')) ?>" class="btn btn-outline-info">Open Tracker</a>
+      <a href="<?= e(url('admin/tracker.php')) ?>" class="btn btn-outline">Open Tracker</a>
     </div>
   </div>
 
