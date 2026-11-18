@@ -160,6 +160,18 @@ function ensure_schema(PDO $pdo, string $driver): void
         created_at {$dt} NOT NULL,
         UNIQUE (server_id, source_type, source_id)
     ){$tail}");
+
+    // Public Mass and Confession schedules.
+    $pdo->exec("CREATE TABLE IF NOT EXISTS parish_schedules (
+        id {$pk},
+        schedule_type VARCHAR(20) NOT NULL DEFAULT 'mass',
+        day_label VARCHAR(80) NOT NULL,
+        schedule_details VARCHAR(255) NOT NULL,
+        sort_order {$int} NOT NULL DEFAULT 0,
+        is_active {$int} NOT NULL DEFAULT 1,
+        created_at {$dt} NOT NULL,
+        updated_at {$dt} NOT NULL
+    ){$tail}");
     
     $cols = $sqlite
         ? array_column($pdo->query('PRAGMA table_info(service_requests)')->fetchAll(), 'name')

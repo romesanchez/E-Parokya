@@ -42,12 +42,6 @@ page_start($title . ' — St. Joseph Parish', $title, '');
     <div class="rule"></div>
   </div>
 
-  <div class="tabs" style="justify-content:center;margin-top:1.5rem">
-    <?php foreach ($pages as $key => [$label]): ?>
-      <a href="info.php?p=<?= e($key) ?>" class="tab<?= $p === $key ? ' active' : '' ?>"><?= e($label) ?></a>
-    <?php endforeach; ?>
-  </div>
-
   <div class="card" style="padding:1.5rem;margin-top:1.5rem">
     <?php foreach ($paras as $para): ?>
       <p class="small" style="margin-bottom:.75rem"><?= e($para) ?></p>

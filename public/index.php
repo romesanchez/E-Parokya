@@ -2,12 +2,24 @@
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/events.php';
 
-$masses = [
-    ['Sunday', '6:00 AM · 8:00 AM · 10:00 AM · 6:00 PM'],
-    ['Monday – Friday', '6:00 AM · 6:00 PM'],
-    ['Saturday', '6:00 AM · 6:00 PM (Anticipated)'],
-    ['First Friday', 'Whole-day Adoration, 8:00 AM – 5:00 PM'],
-];
+// Retrieve active public Mass and Confession schedules.
+$stmt = db()->prepare(
+    "SELECT *
+     FROM parish_schedules
+     WHERE is_active = 1
+     ORDER BY sort_order ASC, id ASC"
+);
+$stmt->execute();
+
+$allSchedules = $stmt->fetchAll();
+
+$masses = array_filter($allSchedules, function ($schedule) {
+    return $schedule['schedule_type'] === 'mass';
+});
+
+$confessions = array_filter($allSchedules, function ($schedule) {
+    return $schedule['schedule_type'] === 'confession';
+});
 
 page_start(
     'St. Joseph Parish — Mass Schedule & Parish Services',
@@ -26,16 +38,59 @@ page_start(
 </section>
 
 <section id="mass-times" class="container section">
+
   <div class="center">
     <h2 class="section-title">Mass Schedule</h2>
     <div class="rule"></div>
   </div>
+
   <div class="mass-grid">
-    <?php foreach ($masses as [$day, $times]): ?>
-      <div class="mass-row"><span class="mass-day"><?= e($day) ?></span><span class="muted small right"><?= e($times) ?></span></div>
-    <?php endforeach; ?>
+    <?php if ($masses): ?>
+
+      <?php foreach ($masses as $schedule): ?>
+        <div class="mass-row">
+          <span class="mass-day">
+            <?= e($schedule['day_label']) ?>
+          </span>
+
+          <span class="muted small right">
+            <?= e($schedule['schedule_details']) ?>
+          </span>
+        </div>
+      <?php endforeach; ?>
+
+    <?php else: ?>
+
+      <p class="center muted small">
+        Mass schedule is currently unavailable.
+      </p>
+
+    <?php endif; ?>
   </div>
-  <p class="center muted small mt-6">Confessions: Saturdays 4:30 – 5:30 PM, or by appointment at the parish office.</p>
+
+  <?php if ($confessions): ?>
+
+    <div class="center" style="margin-top:2rem">
+      <h2 class="section-title">Confession Schedule</h2>
+      <div class="rule"></div>
+    </div>
+
+    <div class="mass-grid">
+      <?php foreach ($confessions as $schedule): ?>
+        <div class="mass-row">
+          <span class="mass-day">
+            <?= e($schedule['day_label']) ?>
+          </span>
+
+          <span class="muted small right">
+            <?= e($schedule['schedule_details']) ?>
+          </span>
+        </div>
+      <?php endforeach; ?>
+    </div>
+
+  <?php endif; ?>
+
 </section>
 
 <?php $homeEvents = events_public_upcoming(3); ?>

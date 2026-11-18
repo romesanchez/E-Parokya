@@ -361,6 +361,43 @@ html.side-open .user-side { transform: none; }
 .acct-av { width: 4.5rem; height: 4.5rem; margin: 0 auto; display: grid; place-items: center; border-radius: 50%; color: #fff; font-size: 1.6rem; font-weight: 600; letter-spacing: .02em; user-select: none; }
 .acct-name { margin-top: .9rem; text-align: center; font-weight: 600; word-break: break-word; }
 .acct-email { margin-top: .1rem; text-align: center; font-size: .8125rem; color: var(--muted-foreground); word-break: break-all; }
+/* Parish information navigation in account sidebar */
+.acct-card .acct-nav {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch;
+    gap: 6px;
+    width: 100%;
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+}
+
+.acct-card .acct-nav-title {
+    display: block;
+    margin: 0 0 8px;
+    color: var(--muted-foreground);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.acct-card .acct-nav .acct-link {
+    display: block !important;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    color: var(--foreground);
+    font-size: 14px;
+    text-decoration: none;
+    transition: background .15s, color .15s;
+}
+
+.acct-card .acct-nav .acct-link:hover {
+    background: var(--secondary);
+    color: var(--primary);
+}
 .acct-logout { margin-top: auto; }
 
 /* X button: kanang taas ng drawer */

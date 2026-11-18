@@ -57,7 +57,7 @@ function page_start(string $title, string $description, string $active = ''): vo
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="<?= e(url('assets/style.css')) ?>?v=2">
   <script src="assets/datepicker.js" defer></script>
 </head>
 <body<?= $side ? ' class="has-side"' : '' ?>>
@@ -70,9 +70,34 @@ function page_start(string $title, string $description, string $active = ''): vo
     </button>
     <div class="acct-av" style="background:<?= e(avatar_color($u['name'])) ?>" aria-hidden="true"><?= e(user_initials($u['name'])) ?></div>
     <p class="acct-name"><?= e($u['name']) ?></p>
-    <p class="acct-email"><?= e($u['email']) ?></p>
-    <form method="post" action="<?= e(url('logout.php')) ?>" class="acct-logout">
-      <?= csrf_field() ?>
+<p class="acct-email"><?= e($u['email']) ?></p>
+
+<nav class="acct-nav" aria-label="Parish information">
+    <p class="acct-nav-title">Parish Information</p>
+
+    <a href="<?= e(url('events.php')) ?>" class="acct-link">
+    Events
+    </a>
+
+    <a href="<?= e(url('info.php?p=contact')) ?>" class="acct-link">
+        Contact Us
+    </a>
+
+    <a href="<?= e(url('info.php?p=privacy')) ?>" class="acct-link">
+        Privacy Policy
+    </a>
+
+    <a href="<?= e(url('info.php?p=agreement')) ?>" class="acct-link">
+        Service Agreement
+    </a>
+
+    <a href="<?= e(url('info.php?p=security')) ?>" class="acct-link">
+      Learn About Security
+    </a>
+</nav>
+
+<form method="post" action="<?= e(url('logout.php')) ?>" class="acct-logout">
+    <?= csrf_field() ?>
       <button type="submit" class="btn btn-outline btn-block">Log out</button>
     </form>
   </aside>
@@ -116,14 +141,6 @@ function page_start(string $title, string $description, string $active = ''): vo
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Info links -->
-        <div class="nav-links">
-          <a href="events.php"<?= $active === 'events' ? ' class="active"' : '' ?>>Events</a>
-          <a href="info.php?p=contact">Contact Us</a>
-          <a href="info.php?p=privacy">Privacy Policy</a>
-          <a href="info.php?p=agreement">Service Agreement</a>
         </div>
 
         <!-- Search -->
