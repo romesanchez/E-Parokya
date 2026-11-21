@@ -57,6 +57,7 @@ $serviceScheduleStmt->execute([
 ]);
 
 $upcomingServiceSchedules = $serviceScheduleStmt->fetchAll();
+$activeServiceCatalog = service_catalog_active();
 
 page_start(
     'St. Joseph Parish — Mass Schedule & Parish Services',
@@ -145,68 +146,21 @@ page_start(
     </div>
 
     <div class="service-grid">
-        <a href="request.php?service=baptism" class="service-card">
-            <div class="service-icon icon-baptism">
-                <i class="fa-solid fa-water" aria-hidden="true"></i>
-            </div>
-            <h3>Baptism</h3>
-            <p>Welcome a new member into the family of God.</p>
-            <span class="service-link">Request service &rarr;</span>
-        </a>
-
-        <a href="request.php?service=wedding" class="service-card">
-            <div class="service-icon icon-wedding">
-                <i class="fa-solid fa-ring" aria-hidden="true"></i>
-            </div>
-            <h3>Wedding</h3>
-            <p>Begin your journey toward celebrating your marriage in the Church.</p>
-            <span class="service-link">Request service &rarr;</span>
-        </a>
-
-        <a href="request.php?service=funeral" class="service-card">
-            <div class="service-icon icon-funeral">
-                <i class="fa-solid fa-cross" aria-hidden="true"></i>
-            </div>
-            <h3>Funeral</h3>
-            <p>Request assistance for funeral rites and parish services.</p>
-            <span class="service-link">Request service &rarr;</span>
-        </a>
-
-        <a href="request.php?service=blessing" class="service-card">
-            <div class="service-icon icon-blessing">
-                <i class="fa-solid fa-house" aria-hidden="true"></i>
-            </div>
-            <h3>Blessing</h3>
-            <p>Request a priest for a blessing of your home or occasion.</p>
-            <span class="service-link">Request service &rarr;</span>
-        </a>
-
-        <a href="request.php?service=first_communion" class="service-card">
-            <div class="service-icon icon-communion">
-                <i class="fa-solid fa-church" aria-hidden="true"></i>
-            </div>
-            <h3>First Communion</h3>
-            <p>Prepare for a child's first reception of the Holy Eucharist.</p>
-            <span class="service-link">Request service &rarr;</span>
-        </a>
-
-        <a href="request.php?service=confirmation" class="service-card">
-            <div class="service-icon icon-confirmation">
-                <i class="fa-solid fa-dove" aria-hidden="true"></i>
-            </div>
-            <h3>Confirmation</h3>
-            <p>Learn about and request assistance for Confirmation.</p>
-            <span class="service-link">Request service &rarr;</span>
-        </a>
-
-        <a href="request.php?service=mass_intention" class="service-card">
-            <div class="service-icon icon-intention">
-                <i class="fa-solid fa-hands-praying" aria-hidden="true"></i>
-            </div>
-            <h3>Mass Intention</h3>
-            <p>Offer a Mass intention for a loved one or special occasion.</p>
-            <span class="service-link">Request service &rarr;</span>
-        </a>
+        <?php if ($activeServiceCatalog): ?>
+            <?php foreach ($activeServiceCatalog as $service): ?>
+                <?php $icon = isset(SERVICE_ICONS[$service['icon']]) ? $service['icon'] : 'church'; ?>
+                <a href="request.php?service=<?= e(rawurlencode($service['service_key'])) ?>" class="service-card">
+                    <div class="service-icon">
+                        <i class="fa-solid fa-<?= e($icon) ?>" aria-hidden="true"></i>
+                    </div>
+                    <h3><?= e($service['name']) ?></h3>
+                    <p><?= e($service['description'] ?: 'Contact the parish office for more information about this service.') ?></p>
+                    <span class="service-link">Request service &rarr;</span>
+                </a>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p class="center muted small">The parish is not currently accepting service requests online.</p>
+        <?php endif; ?>
     </div>
 </section>
 
@@ -224,7 +178,7 @@ page_start(
             <?php foreach ($upcomingServiceSchedules as $serviceSchedule): ?>
                 <div class="mass-row">
                     <span class="mass-day">
-                        <?= e(SERVICE_LABELS[$serviceSchedule['service_type']] ?? ucfirst($serviceSchedule['service_type'])) ?>
+                        <?= e(service_label($serviceSchedule['service_type'])) ?>
                     </span>
 
                     <span class="muted small right">

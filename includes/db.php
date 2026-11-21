@@ -32,6 +32,16 @@ const LOG_LABELS = [
     'client_enabled'        => 'Client account enabled',
     'client_deleted'        => 'Client account deleted',
     'document_issued'       => 'Document issued',
+    'service_created'       => 'Service created',
+    'service_updated'       => 'Service updated',
+    'service_enabled'       => 'Service enabled',
+    'service_disabled'      => 'Service disabled',
+    'service_archived'      => 'Service archived',
+    'service_restored'      => 'Service restored',
+    'service_field_added'   => 'Service field added',
+    'service_field_updated' => 'Service field updated',
+    'service_field_enabled' => 'Service field enabled',
+    'service_field_disabled'=> 'Service field disabled',
     'event_created'         => 'Event created',
     'event_updated'         => 'Event edited',
     'event_cancelled'       => 'Event cancelled',
@@ -211,6 +221,79 @@ function ensure_schema(PDO $pdo, string $driver): void
         }
     }
 
+    // New service keys are stored in a catalogue, so the old seven-value
+    // service_type CHECK constraint must be removed while preserving records.
+    migrate_service_type_constraint($pdo, $sqlite);
+
+    // Dynamic service catalogue, form definitions, answer snapshots and private uploads.
+    $pdo->exec("CREATE TABLE IF NOT EXISTS services (
+        id {$pk},
+        service_key VARCHAR(32) NOT NULL UNIQUE,
+        name VARCHAR(120) NOT NULL,
+        description VARCHAR(500) NULL,
+        icon VARCHAR(32) NOT NULL DEFAULT 'church',
+        is_active {$int} NOT NULL DEFAULT 1,
+        is_archived {$int} NOT NULL DEFAULT 0,
+        sort_order {$int} NOT NULL DEFAULT 0,
+        created_at {$dt} NOT NULL,
+        updated_at {$dt} NOT NULL
+    ){$tail}");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS service_form_fields (
+        id {$pk},
+        service_id {$int} NOT NULL,
+        field_key VARCHAR(64) NOT NULL,
+        label VARCHAR(120) NOT NULL,
+        field_type VARCHAR(20) NOT NULL,
+        is_required {$int} NOT NULL DEFAULT 0,
+        placeholder VARCHAR(160) NULL,
+        help_text VARCHAR(255) NULL,
+        options_json TEXT NULL,
+        sort_order {$int} NOT NULL DEFAULT 0,
+        is_active {$int} NOT NULL DEFAULT 1,
+        created_at {$dt} NOT NULL,
+        updated_at {$dt} NOT NULL,
+        UNIQUE (service_id, field_key)
+    ){$tail}");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS service_request_answers (
+        id {$pk},
+        request_id {$int} NOT NULL,
+        field_key VARCHAR(64) NOT NULL,
+        field_label VARCHAR(120) NOT NULL,
+        field_type VARCHAR(20) NOT NULL,
+        answer_text TEXT NULL,
+        created_at {$dt} NOT NULL,
+        UNIQUE (request_id, field_key)
+    ){$tail}");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS service_request_uploads (
+        id {$pk},
+        request_id {$int} NOT NULL,
+        field_key VARCHAR(64) NOT NULL,
+        field_label VARCHAR(120) NOT NULL,
+        original_name VARCHAR(120) NOT NULL,
+        stored_path VARCHAR(255) NOT NULL,
+        mime_type VARCHAR(100) NOT NULL,
+        file_size {$int} NOT NULL,
+        uploaded_at {$dt} NOT NULL,
+        UNIQUE (request_id, field_key)
+    ){$tail}");
+
+    // Seed the existing seven service types without overwriting any edits.
+    $seed = $pdo->prepare('SELECT id FROM services WHERE service_key = ? LIMIT 1');
+    $insert = $pdo->prepare('INSERT INTO services (service_key, name, description, icon, is_active, is_archived, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, 1, 0, ?, ?, ?)');
+    $legacyIcons = ['baptism' => 'water', 'wedding' => 'ring', 'funeral' => 'cross', 'blessing' => 'house', 'first_communion' => 'book', 'confirmation' => 'dove', 'mass_intention' => 'calendar'];
+    $now = (new DateTimeImmutable('now', new DateTimeZone('Asia/Manila')))->format('Y-m-d H:i:s');
+    $order = 0;
+    foreach (SERVICE_LABELS as $key => $label) {
+        $seed->execute([$key]);
+        if (!$seed->fetchColumn()) {
+            $insert->execute([$key, $label, SERVICE_DESCRIPTIONS[$key] ?? '', $legacyIcons[$key] ?? 'church', $order, $now, $now]);
+        }
+        $order += 10;
+    }
+
     if ($sqlite) {
         $pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_requests_ref ON service_requests (reference_no)');
     } else {
@@ -220,6 +303,111 @@ function ensure_schema(PDO $pdo, string $driver): void
             // index already exists
         }
     }
+}
+
+/** Remove only the legacy service-type constraint; retain all existing request data. */
+function migrate_service_type_constraint(PDO $pdo, bool $sqlite): void
+{
+    if ($sqlite) {
+        $sql = $pdo->query("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'service_requests'")->fetchColumn();
+        if (!$sql || !preg_match('/CHECK\s*\(\s*service_type\s+IN\s*\(/i', $sql)) {
+            return;
+        }
+        $newSql = preg_replace('/\s+CHECK\s*\(\s*service_type\s+IN\s*\([^)]*\)\s*\)/i', '', $sql, 1);
+        if (!$newSql || $newSql === $sql) {
+            throw new RuntimeException('Could not prepare the service catalogue database migration. Back up the SQLite database before updating.');
+        }
+        $newSql = preg_replace('/CREATE TABLE\s+(?:IF NOT EXISTS\s+)?(?:"service_requests"|`service_requests`|\[service_requests\]|service_requests)/i', 'CREATE TABLE service_requests_dynamic_migration', $newSql, 1);
+        if (!$newSql) {
+            throw new RuntimeException('Could not rename the SQLite service request table for migration.');
+        }
+        // ALTER TABLE-added columns are not reflected in sqlite_master's original
+        // CREATE SQL. Re-add every such column before copying all rows.
+        $tableInfo = $pdo->query('PRAGMA table_info(service_requests)')->fetchAll();
+        $extraDefs = [];
+        foreach ($tableInfo as $column) {
+            $columnName = (string)$column['name'];
+            if (preg_match('/\b' . preg_quote($columnName, '/') . '\b/i', $sql)) {
+                continue;
+            }
+            $definition = '"' . str_replace('"', '""', $columnName) . '" ' . ($column['type'] ?: 'TEXT');
+            if ((int)$column['notnull'] === 1) $definition .= ' NOT NULL';
+            if ($column['dflt_value'] !== null) $definition .= ' DEFAULT ' . $column['dflt_value'];
+            $extraDefs[] = $definition;
+        }
+        if ($extraDefs) {
+            $close = strrpos($newSql, ')');
+            if ($close === false) throw new RuntimeException('Could not rebuild the SQLite request table definition.');
+            $newSql = substr($newSql, 0, $close) . ', ' . implode(', ', $extraDefs) . substr($newSql, $close);
+        }
+        $pdo->exec('PRAGMA foreign_keys = OFF');
+        try {
+            if ($pdo->inTransaction()) throw new RuntimeException('Database migration cannot run inside another transaction.');
+            $pdo->beginTransaction();
+            $pdo->exec('DROP TABLE IF EXISTS service_requests_dynamic_migration');
+            $pdo->exec($newSql);
+            $pdo->exec('INSERT INTO service_requests_dynamic_migration SELECT * FROM service_requests');
+            $pdo->exec('DROP TABLE service_requests');
+            $pdo->exec('ALTER TABLE service_requests_dynamic_migration RENAME TO service_requests');
+            $pdo->commit();
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            $pdo->exec('PRAGMA foreign_keys = ON');
+            throw $e;
+        }
+        $pdo->exec('PRAGMA foreign_keys = ON');
+        return;
+    }
+
+    try {
+        // Discover the check by its expression, not only by one constraint name.
+        // Older deployments may have a database-generated name for the whitelist.
+        $checks = $pdo->query("SELECT tc.CONSTRAINT_NAME, cc.CHECK_CLAUSE
+            FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+            INNER JOIN INFORMATION_SCHEMA.CHECK_CONSTRAINTS cc
+                ON cc.CONSTRAINT_SCHEMA = tc.CONSTRAINT_SCHEMA
+               AND cc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
+            WHERE tc.CONSTRAINT_SCHEMA = DATABASE()
+              AND tc.TABLE_NAME = 'service_requests'
+              AND tc.CONSTRAINT_TYPE = 'CHECK'")->fetchAll();
+
+        foreach ($checks as $check) {
+            $name = (string)($check['CONSTRAINT_NAME'] ?? '');
+            $clause = (string)($check['CHECK_CLAUSE'] ?? '');
+            if ($name === '' || !preg_match('/\bservice_type\b/i', $clause)) {
+                continue;
+            }
+            $quotedName = '`' . str_replace('`', '``', $name) . '`';
+            try {
+                $pdo->exec('ALTER TABLE service_requests DROP CHECK ' . $quotedName);
+            } catch (Throwable $first) {
+                try {
+                    $pdo->exec('ALTER TABLE service_requests DROP CONSTRAINT ' . $quotedName);
+                } catch (Throwable $second) {
+                    throw new RuntimeException('The database still restricts service_type to the original service list. Back up the database and remove the service_type CHECK constraint before using custom services.', 0, $second);
+                }
+            }
+        }
+    } catch (RuntimeException $e) {
+        throw $e;
+    } catch (Throwable $e) {
+        // Some older MySQL/MariaDB versions do not expose enforced CHECK metadata.
+        // MySQL versions that ignore CHECK constraints need no migration here.
+        try {
+            $legacy = $pdo->prepare("SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_SCHEMA = DATABASE() AND TABLE_NAME = 'service_requests' AND CONSTRAINT_TYPE = 'CHECK' AND CONSTRAINT_NAME = 'chk_service'");
+            $legacy->execute();
+            if ($legacy->fetchColumn()) {
+                try {
+                    $pdo->exec('ALTER TABLE service_requests DROP CHECK chk_service');
+                } catch (Throwable $first) {
+                    $pdo->exec('ALTER TABLE service_requests DROP CONSTRAINT chk_service');
+                }
+            }
+        } catch (Throwable $fallbackError) {
+            throw new RuntimeException('Could not verify or remove the old service_type CHECK constraint. Custom services may not save until the database schema is updated.', 0, $fallbackError);
+        }
+    }
+
 }
 
 /* ---------- Users ---------- */
@@ -258,7 +446,7 @@ function search_requests(array $f = []): array
         $w[] = 'r.status = ?';
         $p[] = $f['status'];
     }
-    if (!empty($f['service']) && isset(SERVICE_LABELS[$f['service']])) {
+    if (!empty($f['service']) && service_key_exists((string)$f['service'])) {
         $w[] = 'r.service_type = ?';
         $p[] = $f['service'];
     }
