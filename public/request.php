@@ -4,7 +4,15 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/requirements.php';
 $me = require_user();
 
-$values = ['service_type' => 'baptism', 'full_name' => '', 'email' => '', 'phone' => '', 'preferred_date' => '', 'notes' => ''];
+$values = [
+    'service_type' => 'baptism',
+    'full_name' => '',
+    'email' => '',
+    'phone' => '',
+    'preferred_date' => '',
+    'notes' => '',
+    'public_schedule_consent' => '0',
+];
 $error = null;
 
 // Prefill from the logged-in account
@@ -26,6 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($values as $k => $_) {
         $values[$k] = is_string($_POST[$k] ?? null) ? $_POST[$k] : '';
     }
+
+    // Read the optional public schedule consent checkbox.
+    $values['public_schedule_consent'] =
+        (($_POST['public_schedule_consent'] ?? '') === '1') ? '1' : '0';
+
     $name = trim($values['full_name']);
     $mail = trim($values['email']);
     $phone = trim($values['phone']);
@@ -55,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'preferred_date' => $date !== '' ? $date : null,
                 'notes' => $notes !== '' ? $notes : null,
                 'method' => 'online',
+                'public_schedule_consent' => $values['public_schedule_consent'],
             ]);
             $ref = get_request($rid)['reference_no'] ?? '';
             log_action('request_created', SERVICE_LABELS[$values['service_type']] . " request {$ref}");
@@ -166,6 +180,32 @@ $g = service_guide($svc);
       <textarea id="notes" name="notes" data-field="notes" rows="4" maxlength="1000"
         placeholder="<?= e(field_placeholder($svc, 'notes') ?? 'Anything the parish office should know — number of sponsors, location, intentions…') ?>"><?= e($values['notes']) ?></textarea>
     </div>
+
+  <div class="field">
+      <label for="public_schedule_consent"
+            style="display:flex; align-items:flex-start; gap:.6rem; font-weight:400;">
+
+          <input
+              type="checkbox"
+              id="public_schedule_consent"
+              name="public_schedule_consent"
+              value="1"
+              style="width:auto; margin-top:.25rem; flex:0 0 auto;"
+              <?= $values['public_schedule_consent'] === '1' ? 'checked' : '' ?>
+          >
+
+          <span>
+              I voluntarily agree that the parish may display my service
+              type, scheduled date, and time on the public parish website, including the Parish Events page.
+          </span>
+      </label>
+
+      <p class="muted small">
+          This is optional and will not affect your request. Your name,
+          contact details, venue, officiant, and notes will not be shown
+          on the public homepage.
+      </p>
+  </div>
 
     <?php if ($error): ?><p class="alert-error" role="alert"><?= e($error) ?></p><?php endif; ?>
 

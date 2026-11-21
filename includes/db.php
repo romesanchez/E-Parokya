@@ -124,9 +124,19 @@ function ensure_schema(PDO $pdo, string $driver): void
         venue VARCHAR(120) NOT NULL,
         officiant VARCHAR(120) NULL,
         notes VARCHAR(500) NULL,
+        is_public {$int} NOT NULL DEFAULT 0,
         created_at {$dt} NOT NULL,
         updated_at {$dt} NOT NULL
     ){$tail}");
+
+    // Add the public listing flag to existing schedules.
+    $scheduleCols = $sqlite
+        ? array_column($pdo->query('PRAGMA table_info(schedules)')->fetchAll(), 'name')
+        : array_column($pdo->query('SHOW COLUMNS FROM schedules')->fetchAll(), 'Field');
+
+    if (!in_array('is_public', $scheduleCols, true)) {
+        $pdo->exec("ALTER TABLE schedules ADD COLUMN is_public {$int} NOT NULL DEFAULT 0");
+    }
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS events (
         id {$pk},
@@ -178,11 +188,13 @@ function ensure_schema(PDO $pdo, string $driver): void
         : array_column($pdo->query('SHOW COLUMNS FROM service_requests')->fetchAll(), 'Field');
 
     $add = [
-        'user_id'      => "{$int} NULL",
-        'reference_no' => 'VARCHAR(20) NULL',
-        'method'       => "VARCHAR(10) NOT NULL DEFAULT 'online'",
-        'created_by'   => "{$int} NULL",
-        'archived_at'  => "{$dt} NULL",
+        'user_id'                     => "{$int} NULL",
+        'reference_no'                => 'VARCHAR(20) NULL',
+        'method'                      => "VARCHAR(10) NOT NULL DEFAULT 'online'",
+        'created_by'                  => "{$int} NULL",
+        'archived_at'                 => "{$dt} NULL",
+        'public_schedule_consent'     => "{$int} NOT NULL DEFAULT 0",
+        'public_schedule_consent_at'  => "{$dt} NULL",
     ];
     foreach ($add as $col => $def) {
         if (!in_array($col, $cols, true)) {
@@ -231,7 +243,7 @@ function count_users(): int
 }
 
 /* ---------- Requests ---------- */
-const REQ_SELECT = 'SELECT r.*, s.event_date, s.event_time, s.venue, s.officiant, s.notes AS sched_notes,
+const REQ_SELECT = 'SELECT r.*, s.is_public, s.event_date, s.event_time, s.venue, s.officiant, s.notes AS sched_notes,
         u.email AS account_email, c.full_name AS staff_name
     FROM service_requests r
     LEFT JOIN schedules s ON s.request_id = r.id
@@ -304,19 +316,53 @@ function status_counts(): array
 
 function create_request(array $d): int
 {
+    $now = (new DateTimeImmutable(
+        'now',
+        new DateTimeZone('Asia/Manila')
+    ))->format('Y-m-d H:i:s');
+
+    $method = isset(METHOD_LABELS[$d['method'] ?? ''])
+        ? $d['method']
+        : 'online';
+
+    $publicConsent = isset($d['public_schedule_consent'])
+        && (string)$d['public_schedule_consent'] === '1';
+
+    $publicConsentAt = $publicConsent ? $now : null;
+
     $st = db()->prepare(
-        'INSERT INTO service_requests (user_id, service_type, full_name, email, phone, preferred_date, notes, status, method, created_by, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, \'pending\', ?, ?, ?, ?)'
+        'INSERT INTO service_requests (
+            user_id, service_type, full_name, email, phone,
+            preferred_date, notes, public_schedule_consent,
+            public_schedule_consent_at, status, method,
+            created_by, created_at, updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, \'pending\', ?, ?, ?, ?)'
     );
-    $now = date('Y-m-d H:i:s');
-    $method = isset(METHOD_LABELS[$d['method'] ?? '']) ? $d['method'] : 'online';
+
     $st->execute([
-        $d['user_id'] ?? null, $d['service_type'], $d['full_name'], $d['email'], $d['phone'],
-        $d['preferred_date'], $d['notes'], $method, $d['created_by'] ?? null, $now, $now,
+        $d['user_id'] ?? null,
+        $d['service_type'],
+        $d['full_name'],
+        $d['email'],
+        $d['phone'],
+        $d['preferred_date'],
+        $d['notes'],
+        $publicConsent ? 1 : 0,
+        $publicConsentAt,
+        $method,
+        $d['created_by'] ?? null,
+        $now,
+        $now,
     ]);
+
     $id = (int)db()->lastInsertId();
-    $up = db()->prepare('UPDATE service_requests SET reference_no = ? WHERE id = ?');
+
+    $up = db()->prepare(
+        'UPDATE service_requests SET reference_no = ? WHERE id = ?'
+    );
     $up->execute([make_reference($id, $now), $id]);
+
     return $id;
 }
 
@@ -355,17 +401,76 @@ function schedule_conflict(string $date, string $time, string $venue, int $excep
 
 function save_schedule(int $rid, array $d): void
 {
-    $now = date('Y-m-d H:i:s');
-    $ex = db()->prepare('SELECT id FROM schedules WHERE request_id = ?');
+    $now = (new DateTimeImmutable(
+        'now',
+        new DateTimeZone('Asia/Manila')
+    ))->format('Y-m-d H:i:s');
+
+    // Verify consent and approval directly from the database.
+    // Never rely only on the checkbox submitted by the browser.
+    $isPublic = !empty($d['is_public']) ? 1 : 0;
+
+    if ($isPublic === 1) {
+        $consent = db()->prepare(
+            "SELECT public_schedule_consent
+             FROM service_requests
+             WHERE id = ?
+               AND status = 'approved'
+               AND archived_at IS NULL
+               AND public_schedule_consent_at IS NOT NULL"
+        );
+
+        $consent->execute([$rid]);
+
+        $isPublic = ((int)$consent->fetchColumn() === 1) ? 1 : 0;
+    }
+
+    $ex = db()->prepare(
+        'SELECT id FROM schedules WHERE request_id = ?'
+    );
     $ex->execute([$rid]);
+
     $off = $d['officiant'] !== '' ? $d['officiant'] : null;
     $notes = $d['notes'] !== '' ? $d['notes'] : null;
+
     if ($ex->fetch()) {
-        $st = db()->prepare('UPDATE schedules SET event_date = ?, event_time = ?, venue = ?, officiant = ?, notes = ?, updated_at = ? WHERE request_id = ?');
-        $st->execute([$d['event_date'], $d['event_time'], $d['venue'], $off, $notes, $now, $rid]);
+        $st = db()->prepare(
+            'UPDATE schedules
+             SET event_date = ?, event_time = ?, venue = ?,
+                 officiant = ?, notes = ?, is_public = ?, updated_at = ?
+             WHERE request_id = ?'
+        );
+
+        $st->execute([
+            $d['event_date'],
+            $d['event_time'],
+            $d['venue'],
+            $off,
+            $notes,
+            $isPublic,
+            $now,
+            $rid,
+        ]);
     } else {
-        $st = db()->prepare('INSERT INTO schedules (request_id, event_date, event_time, venue, officiant, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-        $st->execute([$rid, $d['event_date'], $d['event_time'], $d['venue'], $off, $notes, $now, $now]);
+        $st = db()->prepare(
+            'INSERT INTO schedules (
+                request_id, event_date, event_time, venue,
+                officiant, notes, is_public, created_at, updated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        );
+
+        $st->execute([
+            $rid,
+            $d['event_date'],
+            $d['event_time'],
+            $d['venue'],
+            $off,
+            $notes,
+            $isPublic,
+            $now,
+            $now,
+        ]);
     }
 }
 

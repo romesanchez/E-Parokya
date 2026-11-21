@@ -5,7 +5,7 @@ require_once __DIR__ . '/../includes/events.php';
 $u = current_user();
 $loggedIn = $u && $u['role'] === 'user';
 $events = events_public_upcoming();
-$weddings = $loggedIn ? weddings_upcoming() : [];
+$weddings = weddings_upcoming();
 $altar = $loggedIn ? altar_servers_public_map() : [];
 
 // Group events by month.
@@ -44,10 +44,11 @@ page_start('Parish Events — St. Joseph Parish', 'Upcoming activities, feasts a
         <article class="card ev">
           <div class="ev-date" aria-hidden="true"><span class="ev-day"><?= e(date('j', $ts)) ?></span><span class="ev-mon"><?= e(date('M', $ts)) ?></span></div>
           <div class="ev-body">
-            <div class="ev-head"><h3><?= e($w['full_name']) ?></h3><span class="badge badge-approved">Wedding</span></div>
+            <div class="ev-head">
+                <h3>Wedding</h3>
+                <span class="badge badge-approved">Wedding</span>
+            </div>
             <p class="small"><strong><?= e(date('l, F j, Y', $ts)) ?></strong> · <?= e(fmt_time($w['event_time'])) ?></p>
-            <p class="muted small"><?= e($w['venue']) ?><?= $w['officiant'] ? ' · ' . e($w['officiant']) : '' ?></p>
-            <?php render_altar_servers_line($altar['schedule:' . $w['schedule_id']] ?? []); ?>
           </div>
         </article>
       <?php endforeach; ?>

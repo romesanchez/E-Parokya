@@ -5,7 +5,14 @@ $me = require_admin();
 
 $self = url('admin/schedule.php');
 $error = null;
-$form = ['event_date' => '', 'event_time' => '', 'venue' => '', 'officiant' => '', 'notes' => ''];
+$form = [
+    'event_date' => '',
+    'event_time' => '',
+    'venue' => '',
+    'officiant' => '',
+    'notes' => '',
+    'is_public' => '0',
+];
 $selId = (int)(filter_var($_GET['request'] ?? null, FILTER_VALIDATE_INT) ?: 0);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -34,6 +41,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($form as $k => $_) {
             $form[$k] = is_string($_POST[$k] ?? null) ? trim($_POST[$k]) : '';
         }
+        $requestedPublic = (($_POST['is_public'] ?? '') === '1');
+
+        $hasPublicConsent =
+            (int)($req['public_schedule_consent'] ?? 0) === 1
+            && !empty($req['public_schedule_consent_at'])
+            && ($req['status'] ?? '') === 'approved'
+            && empty($req['archived_at']);
+
+        $form['is_public'] =
+            ($requestedPublic && $hasPublicConsent) ? '1' : '0';
         $d = DateTime::createFromFormat('Y-m-d', $form['event_date']);
         $t = DateTime::createFromFormat('H:i', $form['event_time']);
         if (!$d || $d->format('Y-m-d') !== $form['event_date']) {
@@ -45,6 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($c = schedule_conflict($form['event_date'], $form['event_time'], $form['venue'], $rid)) {
             $error = 'Conflict: ' . $c['full_name'] . ' (' . (SERVICE_LABELS[$c['service_type']] ?? $c['service_type'])
                 . ') is already booked at ' . $form['venue'] . ' on that date and time.';
+        } elseif ($requestedPublic && !$hasPublicConsent) {
+            $error = 'This request cannot be published because the parishioner has not given public listing consent.';
         } else {
             save_schedule($rid, $form);
             log_action('schedule_set', "#{$rid} {$req['full_name']}: {$form['event_date']} {$form['event_time']} @ {$form['venue']}");
@@ -61,6 +80,7 @@ if ($sel && $_SERVER['REQUEST_METHOD'] !== 'POST') {
         'venue'      => $sel['venue'] ?? '',
         'officiant'  => $sel['officiant'] ?? '',
         'notes'      => $sel['sched_notes'] ?? '',
+        'is_public' => !empty($sel['is_public']) ? '1' : '0',
     ];
 }
 
@@ -102,6 +122,46 @@ admin_start('Scheduling', 'schedule');
       <input id="officiant" name="officiant" maxlength="120" value="<?= e($form['officiant']) ?>"></div>
     <div class="field full"><label for="notes">Notes <span class="muted normal">(optional)</span></label>
       <textarea id="notes" name="notes" rows="2" maxlength="500"><?= e($form['notes']) ?></textarea></div>
+    <?php if (
+        $sel
+        && (int)($sel['public_schedule_consent'] ?? 0) === 1
+        && !empty($sel['public_schedule_consent_at'])
+        && ($sel['status'] ?? '') === 'approved'
+        && empty($sel['archived_at'])
+    ): ?>
+
+        <div class="field full">
+            <label for="is_public"
+                  style="display:flex; align-items:flex-start; gap:.6rem;">
+
+                <input
+                    type="checkbox"
+                    id="is_public"
+                    name="is_public"
+                    value="1"
+                    style="width:auto; margin-top:.25rem; flex:0 0 auto;"
+                    <?= $form['is_public'] === '1' ? 'checked' : '' ?>
+                >
+
+                <span>
+                    <strong>Publish anonymized schedule on public homepage</strong>
+
+                    <span class="muted small">
+                        Only the service type, date, and time will be displayed.
+                        The person's name, venue, officiant, and notes stay private.
+                    </span>
+                </span>
+            </label>
+        </div>
+
+    <?php elseif ($sel): ?>
+
+        <p class="muted small full">
+            Public listing is unavailable. This parishioner has not opted in,
+            or the request is not approved.
+        </p>
+
+    <?php endif; ?>
     <?php if ($error): ?><p class="alert-error full" role="alert"><?= e($error) ?></p><?php endif; ?>
     <div class="full"><button type="submit" class="btn btn-success">Save schedule</button></div>
   </form>

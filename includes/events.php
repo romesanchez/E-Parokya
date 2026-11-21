@@ -211,15 +211,31 @@ function events_public_upcoming(int $limit = 0): array
 }
 
 /** Upcoming wedding schedules (approved/completed requests that already have a date). */
+/**
+ * Upcoming weddings approved for public schedule display.
+ * Only the date and time are returned. Personal details remain private.
+ */
 function weddings_upcoming(int $limit = 0): array
 {
-    $sql = "SELECT s.id AS schedule_id, s.event_date, s.event_time, s.venue, s.officiant, r.full_name
-            FROM schedules s JOIN service_requests r ON r.id = s.request_id
-            WHERE r.service_type = 'wedding' AND r.status IN ('approved', 'completed')
-              AND r.archived_at IS NULL AND s.event_date >= ?
-            ORDER BY s.event_date ASC, s.event_time ASC" . ($limit > 0 ? ' LIMIT ' . (int)$limit : '');
+    $sql = "SELECT
+                s.id AS schedule_id,
+                s.event_date,
+                s.event_time
+            FROM schedules s
+            JOIN service_requests r ON r.id = s.request_id
+            WHERE r.service_type = 'wedding'
+              AND r.status IN ('approved', 'completed')
+              AND r.archived_at IS NULL
+              AND r.public_schedule_consent = 1
+              AND r.public_schedule_consent_at IS NOT NULL
+              AND s.is_public = 1
+              AND s.event_date >= ?
+            ORDER BY s.event_date ASC, s.event_time ASC"
+            . ($limit > 0 ? ' LIMIT ' . (int)$limit : '');
+
     $st = db()->prepare($sql);
     $st->execute([date('Y-m-d')]);
+
     return $st->fetchAll();
 }
 
